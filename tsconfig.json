@@ -22,6 +22,5 @@
         "noUnusedParameters": true,
         "experimentalDecorators": true
     },
-    "include": ["**/*"],
-    "exclude": ["node_modules", "dist"]
+    "include": ["src/*", "src/**/*", "project.js"]
 }

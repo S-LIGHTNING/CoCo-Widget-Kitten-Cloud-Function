@@ -1,8 +1,8 @@
 # 源码云功能
 
-[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/S-LIGHTNING/Kitten-Cloud-Function/latest/total)](https://gitee.com/slightning/Kitten-Cloud-Function/releases/latest)
-[![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads-pre/S-LIGHTNING/Kitten-Cloud-Function/latest/total)](https://gitee.com/slightning/Kitten-Cloud-Function/releases)
-[![GitHub License](https://img.shields.io/github/license/S-LIGHTNING/Kitten-Cloud-Function)](https://gitee.com/slightning/Kitten-Cloud-Function/blob/main/LICENSE)
+[<img height="20" src="https://gitee.com/favicon.ico" alt="Gitee"></img>](https://gitee.com/slightning/Kitten-Cloud-Function) [![Gitee Downloads (all assets, latest release)](https://img.shields.io/github/downloads/S-LIGHTNING/Kitten-Cloud-Function/latest/total)](https://gitee.com/slightning/Kitten-Cloud-Function/releases/latest) [![Gitee Downloads (all assets, latest release)](https://img.shields.io/github/downloads-pre/S-LIGHTNING/Kitten-Cloud-Function/latest/total)](https://gitee.com/slightning/Kitten-Cloud-Function/releases) [![Gitee License](https://img.shields.io/github/license/S-LIGHTNING/Kitten-Cloud-Function)](https://gitee.com/slightning/Kitten-Cloud-Function/blob/main/LICENSE)
+
+[<img height="20" src="https://github.com/favicon.ico" alt="GitHub"></img>](https://github.com/S-LIGHTNING/Kitten-Cloud-Function) [![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/S-LIGHTNING/Kitten-Cloud-Function/latest/total)](https://github.com/S-LIGHTNING/Kitten-Cloud-Function/releases/latest) [![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads-pre/S-LIGHTNING/Kitten-Cloud-Function/latest/total)](https://github.com/S-LIGHTNING/Kitten-Cloud-Function/releases) [![GitHub License](https://img.shields.io/github/license/S-LIGHTNING/Kitten-Cloud-Function)](https://github.com/S-LIGHTNING/Kitten-Cloud-Function/blob/main/LICENSE)
 
 ## 一、介绍
 
@@ -25,7 +25,7 @@
 
 [CoCo 控件版](#coco-控件版)
 [窜改猴库版](#窜改猴库版)
-[窜改猴用户脚本版]（开发中）(#窜改猴用户脚本版)
+[窜改猴用户脚本版（开发中）](#窜改猴用户脚本版)
 
 ### CoCo 控件版
 
@@ -66,7 +66,7 @@
 可以通过尝试获取用户信息来检测用户是否已登录。
 
 ```JavaScript
-try{
+try {
     await coco.user.info.id
     console.log("用户已登录")
 } catch(error) {
@@ -77,7 +77,7 @@ try{
 #### 4.创建连接
 
 ```JavaScript
-let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
+let connection = new KittenCloudFunction(114514)
 ```
 
 #### 5.查看和修改云数据
@@ -85,7 +85,7 @@ let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
 ##### ①获取云数据实例
 
 ```JavaScript
-let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
+let connection = new KittenCloudFunction(114514)
 
 // 快速获取云数据实例，不推荐使用
 let data = await connection.get("云数据")
@@ -99,7 +99,7 @@ let list = await connection.list.get("云列表")
 ##### ②查看和修改云变量
 
 ```JavaScript
-let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
+let connection = new KittenCloudFunction(114514)
 let variable = await connection.publicVariable.get("云变量")
 
 // 读取云变量的值
@@ -112,7 +112,7 @@ variable.set("好耶")
 ##### ③查看私有云变量排行榜
 
 ```JavaScript
-let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
+let connection = new KittenCloudFunction(114514)
 let privateVariable = await connection.privateVariable.get("私有云变量")
 
 // 获取私有云变量排行榜逆序排列的前 31 名用户
@@ -124,7 +124,7 @@ for (const item of rankList) {
 ##### ④查看和修改云列表
 
 ```JavaScript
-let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
+let connection = new KittenCloudFunction(114514)
 let list = await connection.list.get("云列表")
 
 // 获取云列表第 1 项，列表索引从 0 开始
@@ -163,7 +163,7 @@ list.remove(1)
 如：
 
 ```JavaScript
-let connection = new KittenCloudFunction(new CodemaoWork({ id: 114514 }))
+let connection = new KittenCloudFunction(114514)
 
 // 假设该变量初始值为 0
 let variable = await connection.publicVariable.get("云变量")

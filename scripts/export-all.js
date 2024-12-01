@@ -1,5 +1,8 @@
 const fs = require("fs")
 
+/**
+ * @param {fs.PathLike} base
+ */
 function print(base) {
     for (const name of fs.readdirSync(base)) {
         const path = base + "/" + name
