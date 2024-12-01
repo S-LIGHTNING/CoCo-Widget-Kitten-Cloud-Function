@@ -1,45 +1,31 @@
-const path = require("path")
 const webpack = require("webpack")
+const global = require("./global.webpack.config")
 
 // @ts-ignore
-const { project } = require("./project.ts")
+const { project } = require("./project")
 
 module.exports = {
-    mode: "none",
-    stats: "minimal",
+    mode: global.mode,
+    stats: global.stats,
     entry: {
-        ["窜改猴脚本版/" + project.name + "（窜改猴库版）"]: "./src/wrapper/tampermonkey/kitten-cloud-function-tampermonkey-library.ts",
-        ["窜改猴脚本版/" + project.name + "（窜改猴用户脚本版）"]: "./src/wrapper/tampermonkey/kitten-cloud-function-tampermonkey-user-script.ts"
+        [project.name + "（窜改猴用户脚本版）"]: "./src/wrapper/kitten-cloud-function-tampermonkey-user-script.ts"
     },
-    output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: "[name].js",
-        environment: {
-            arrowFunction: false
-        }
-    },
+    output: global.output,
+    optimization: global.optimization,
     module: {
         rules: [
-            {
-                test: /\.tsx?/,
-                use: {
-                    loader: "babel-loader",
-                    options: {
-                        cacheDirectory: true,
-                        cacheCompression: false,
-                    }
-                },
-            }
+            ...global.module.rules
         ]
     },
     resolve: {
-        extensions: [".ts", ".js"]
+        extensions: global.resolve.extensions
     },
-    externalsType: "commonjs",
+    externalsType: "var",
     externals: {
         "diff": "diff"
     },
     plugins: [
+        ...global.plugins,
         new webpack.BannerPlugin({
             banner:[
                 "==UserScript==",
@@ -54,7 +40,7 @@ module.exports = {
                 "==/UserScript=="
             ].map(line => `// ${line}\n`).join(""),
             raw: true,
-            test: /（窜改猴库版）\.js/,
+            test: /（窜改猴库版）\.js$/,
             entryOnly: true
         }),
         new webpack.BannerPlugin({
@@ -70,7 +56,7 @@ module.exports = {
                 "==/UserScript=="
             ].map(line => `// ${line}\n`).join(""),
             raw: true,
-            test: /（窜改猴用户脚本版）\.js/,
+            test: /（窜改猴用户脚本版）\.js$/,
             entryOnly: true
         })
     ]

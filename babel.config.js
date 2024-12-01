@@ -4,11 +4,8 @@ module.exports = {
             targets: {
                 ie: "11"
             }
-        }],
-        "@babel/preset-typescript"
+        }]
     ],
-    plugins: [
-        "@babel/plugin-transform-runtime"
-    ],
+    plugins: [],
     sourceType: "unambiguous"
 }

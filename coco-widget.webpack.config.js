@@ -1,45 +1,33 @@
-const path = require("path")
 const webpack = require("webpack")
+const global = require("./global.webpack.config")
+const TerserPlugin = require("terser-webpack-plugin")
 const SCW = require("slightning-coco-widget--webpack")
 
 // @ts-ignore
-const { project } = require("./project.ts")
+const { project } = require("./project")
 
 module.exports = {
-    mode: "none",
-    stats: "minimal",
+    mode: global.mode,
+    stats: global.stats,
     entry: {
         [project.name + "（编程猫CoCo 控件版）"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
     },
-    output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: "[name].js",
-        environment: {
-            arrowFunction: false
-        }
-    },
+    output: global.output,
+    optimization: global.optimization,
     module: {
         rules: [
-            {
-                test: /\.(j|t)sx?$/,
-                use: {
-                    loader: "babel-loader",
-                    options: {
-                        cacheDirectory: true,
-                        cacheCompression: false,
-                        presets: ["@babel/preset-typescript"]
-                    }
-                },
-            }, ...SCW.loaders
+            ...global.module.rules, ...SCW.loaders
         ]
     },
     resolve: {
-        extensions: [".ts", ".tsx", ".js", ".jsx"]
+        extensions: global.resolve.extensions
     },
     externalsType: SCW.externalsType,
     externals: SCW.externals,
     plugins: [
-        ...SCW.plugins, new webpack.BannerPlugin({
+        ...SCW.plugins,
+        ...global.plugins,
+        new webpack.BannerPlugin({
             banner:[
                 "==CoCoWidget==",
                 "@name " + project.name,
@@ -50,7 +38,7 @@ module.exports = {
                 "==/CoCoWidget=="
             ].map(line => `// ${line}\n`).join(""),
             raw: true,
-            test: /（编程猫CoCo 控件版）\.js/,
+            test: /（编程猫CoCo 控件版）\.js$/,
             entryOnly: true
         })
     ]

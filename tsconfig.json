@@ -1,10 +1,14 @@
 {
     "compilerOptions": {
         "outDir": "dist/src",
+        "target": "ESNext",
         "declaration": true,
         "declarationDir": "dist/types",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "lib": ["ESNext", "DOM"],
         "skipLibCheck": true,
+        "checkJs": true,
         "strict": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
@@ -16,7 +20,7 @@
         "noUncheckedIndexedAccess": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "resolveJsonModule": true
+        "experimentalDecorators": true
     },
     "include": ["**/*"],
     "exclude": ["node_modules", "dist"]
