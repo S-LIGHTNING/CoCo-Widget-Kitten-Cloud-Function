@@ -55,13 +55,13 @@
         "axios": "^1.7.2",
         "commander": "^12.1.0",
         "diff": "^5.2.0",
-        "slightning-coco-widget": "^1.0.1-alpha.2"
+        "slightning-coco-widget": "1.0.1-alpha.4"
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",
         "@babel/preset-env": "^7.25.3",
         "babel-loader": "^9.1.3",
-        "slightning-coco-widget--webpack": "^1.0.0",
+        "slightning-coco-widget--webpack": "1.0.1-alpha.1",
         "terser-webpack-plugin": "^5.3.10",
         "ts-loader": "^9.5.1",
         "typedoc": "^0.26.6",

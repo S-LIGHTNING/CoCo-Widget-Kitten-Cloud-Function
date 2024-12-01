@@ -39,6 +39,7 @@ export class KittenCloudPublicVariable extends KittenCloudVariable {
      * @param value 要设置的值
      */
     public set(this: this, value: KittenCloudVariableValue): void {
+        value = this.singleValueProcess(value)
         this.updateManager.addUpdateCommand(
             new KittenCloudPublicVariableSetCommand(
                 KittenCloudDataUpdateSource.LOCAL, this, value

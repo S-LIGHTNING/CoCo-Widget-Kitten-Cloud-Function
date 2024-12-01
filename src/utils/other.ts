@@ -49,3 +49,9 @@ export function merge<T extends Exclude<object, None>>(target: T, source: T): T 
     }
     return target
 }
+
+export function enumerable(value: boolean): (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) => void {
+    return function (__target: unknown, __propertyKey: string, descriptor: PropertyDescriptor): void {
+        descriptor.enumerable = value
+    }
+}

@@ -119,16 +119,26 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
     /**
      * 创建一个新的 KittenCloudFunction 实例，当实例被创建时，会自动连接到源码云。
      *
-     * @param argument 一个 {@link CodemaoWork} 实例，表示要连接的作品。
+     * @param work 一个数字，表示要连接的作品的 ID。
      */
-    public constructor(argument: CodemaoWork)
+    public constructor(workID: number)
+
+    /**
+     * 创建一个新的 KittenCloudFunction 实例，当实例被创建时，会自动连接到源码云。
+     *
+     * @param work 一个 {@link CodemaoWork} 实例，表示要连接的作品。
+     */
+    public constructor(work: CodemaoWork)
 
     public constructor(argument: CodemaoWork | KittenCloudWebSocket | WebSocketProxy | WebSocket)
     public constructor(
-        argument: CodemaoWork | KittenCloudWebSocket | WebSocketProxy | WebSocket
+        argument: number | CodemaoWork | KittenCloudWebSocket | WebSocketProxy | WebSocket
     ) {
         super()
         this.autoReconnectIntervalTime = new SingleConfig<number | boolean>(8000, 8000)
+        if (typeof argument == "number") {
+            argument = new CodemaoWork({ id: argument })
+        }
         const work: CodemaoWork | null =
             argument instanceof CodemaoWork? argument : null
         if (!(argument instanceof KittenCloudWebSocket)) {

@@ -210,7 +210,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 添加新的项到尾部。
+     * 添加新的项到云列表尾部。
      *
      * @param value 添加的新的项的值
      */
@@ -222,7 +222,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 添加新的项到头部。
+     * 添加新的项到云列表头部。
      *
      * @param value 添加的新的项的值
      */
@@ -234,7 +234,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 添加新的项到指定位置。
+     * 添加新的项到云列表指定位置。
      *
      * @param index 位置索引，从 0 开始
      * @param value 添加的新的项的值
@@ -247,7 +247,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 移除最后一项。
+     * 移除云列表最后一项。
      */
     public pop(this: this): void {
         this.updateManager.addUpdateCommand(new KittenCloudListPopCommand(
@@ -256,7 +256,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 移除指项。
+     * 移除云列表指项。
      *
      * @param index 位置索引，从 0 开始
      */
@@ -267,7 +267,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 清空列表。
+     * 清空云列表。
      */
     public empty(this: this): void {
         this.updateManager.addUpdateCommand(new KittenCloudListEmptyCommand(
@@ -276,7 +276,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 替换最后一项。
+     * 替换云列表最后一项。
      *
      * @param value 新的值
      */
@@ -288,7 +288,7 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 替换指定项。
+     * 替换云列表指定项。
      *
      * @param index 位置索引，从 0 开始
      * @param value 新的值
@@ -301,9 +301,9 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 从源列表复制所有项。
+     * 从源列表复制所有项到云列表。
      *
-     * 该操作会对比源列表和当前列表，并将差异应用到当前列表。
+     * 该操作会对比源列表和云列表，并将差异应用到云列表。
      *
      * @param source 源列表
      */
@@ -323,16 +323,16 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 获取一份当前列表的副本数组。
+     * 获取一份云列表当前状态的副本数组。
      *
-     * @returns 当前列表的副本数组
+     * @returns 云列表当前状态的副本数组
      */
     public copy(this: this): KittenCloudListItemValue[] {
         return this.value.slice()
     }
 
     /**
-     * 获取指定位置的项。
+     * 获取云列表指定位置的项。
      *
      * @param index 位置索引，从 0 开始
      * @returns 指定位置的项，如果索引越界则返回 `None`
@@ -342,46 +342,46 @@ export class KittenCloudList extends KittenCloudData {
     }
 
     /**
-     * 获取列表的长度。
+     * 获取云列表的长度。
      *
-     * @returns 列表的长度
+     * @returns 云列表的长度
      */
     public get length(): number {
         return this.value.length
     }
 
     /**
-     * 获取指定项在列表中第一次出现的位置。
+     * 获取指定项在云列表中第一次出现的位置。
      *
      * @param item 要查找的项
-     * @returns 指定项在列表中第一次出现的位置，如果不存在则返回 `-1`
+     * @returns 指定项在云列表中第一次出现的位置，如果不存在则返回 `-1`
      */
     public indexOf(this: this, item: KittenCloudListItemValue): number {
         return this.value.indexOf(item)
     }
 
     /**
-     * 获取指定项在列表中最后一次出现的位置。
+     * 获取指定项在云列表中最后一次出现的位置。
      *
      * @param item 要查找的项
-     * @returns 指定项在列表中最后一次出现的位置，如果不存在则返回 `-1`
+     * @returns 指定项在云列表中最后一次出现的位置，如果不存在则返回 `-1`
      */
     public lastIndexOf(this: this, item: KittenCloudListItemValue): number {
         return this.value.lastIndexOf(item)
     }
 
     /**
-     * 判断指定项是否在列表中。
+     * 判断指定项是否在云列表中。
      *
      * @param item 要查找的项
-     * @returns 指定项是否在列表中
+     * @returns 指定项是否在云列表中
      */
     public includes(this: this, item: KittenCloudListItemValue): boolean {
         return this.value.includes(item)
     }
 
     /**
-     * 用指定字符串连接列表中的所有项。
+     * 用指定字符串连接云列表中的所有项。
      *
      * @param separator 项之间的分隔符
      * @returns 连接后的字符串

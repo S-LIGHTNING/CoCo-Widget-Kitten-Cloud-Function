@@ -113,7 +113,6 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
 
     public handleCloudUpdate(this: this, cloudMessage: unknown): void {
         const errorArray: Error[] = []
-        this.uploadCount.shift()
         let message: Record<string, KittenCloudDataUpdateCommandGroup>
         try {
             message = this.toUploadMessage(cloudMessage)
@@ -148,6 +147,7 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
                 data.updateManager.addUpdateCommand(updateCommand)
             }
         }
+        this.uploadCount.shift()
     }
 
     public handleCloudUpdateError(this: this): void {

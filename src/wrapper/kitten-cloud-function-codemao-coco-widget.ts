@@ -1,7 +1,7 @@
 import { KittenCloudFunction } from "../kitten-cloud-function"
 import { CodemaoWork } from "../codemao/work/codemao-work"
 import { None } from "../utils/other"
-import { KittenCloudVariable, KittenCloudVariableChangeMessage as KittenCloudVariableChangeMessageObject, KittenCloudVariableValue } from "../module/cloud-data/kitten-cloud-variable"
+import { KittenCloudVariable, KittenCloudVariableChangeMessageObject, KittenCloudVariableValue } from "../module/cloud-data/kitten-cloud-variable"
 import { KittenCloudData } from "../module/cloud-data/kitten-cloud-data"
 import { CodemaoUser } from "../codemao/user/codemao-user"
 import { KittenCloudPrivateVariable, KittenCloudPrivateVariableRankingListItemObject } from "../module/cloud-data/kitten-cloud-private-variable"
@@ -11,7 +11,7 @@ import { KittenCloudOnlineUserNumber, KittenCloudOnlineUserNumberChangObject } f
 import { KittenCloudPrivateVariableGroup } from "../module/cloud-data/group/kitten-cloud-private-variable-group"
 import { KittenCloudPublicVariableGroup } from "../module/cloud-data/group/kitten-cloud-public-variable-group"
 import { KittenCloudListGroup } from "../module/cloud-data/group/kitten-cloud-list-group"
-import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, ValueType } from "slightning-coco-widget"
+import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, SLIGHTNINGWidget, ValueType } from "slightning-coco-widget"
 const { project } = require("../../project")
 
 const VariableValueType: ValueType[] = [ ValueType.NUMBER, ValueType.STRING ]
@@ -788,7 +788,7 @@ function getErrorMessage(error: unknown): string {
     }
 }
 
-class KittenCloudFunctionWidget extends InvisibleWidget {
+class KittenCloudFunctionWidget extends SLIGHTNINGWidget(types, InvisibleWidget) {
 
     private connection: KittenCloudFunction | None
     private isOpened: boolean = false
@@ -898,7 +898,6 @@ class KittenCloudFunctionWidget extends InvisibleWidget {
             this.emit("onOpen")
         })
         this.connection.errored.connect((error): void => {
-            console.log(this.isOpened)
             if (!this.isOpened) {
                 this.connection = None
             }

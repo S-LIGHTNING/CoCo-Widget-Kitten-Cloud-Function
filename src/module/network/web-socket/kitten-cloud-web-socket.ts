@@ -1,23 +1,30 @@
 import { WebSocketProxy } from "../../../utils/web-socket-proxy"
-import { CodemaoWorkType } from "../../../codemao/work/codemao-work-type"
+import { CodemaoWorkEditor } from "../../../codemao/work/codemao-work-editor"
 import { CodemaoWork } from "../../../codemao/work/codemao-work"
 import { Signal } from "../../../utils/signal"
 import { KittenCloudWebSocketMessageType } from "./kitten-cloud-web-socket-message-type"
 import { None } from "../../../utils/other"
 
 const KITTEN_WEB_SOCKET_URL_PARAMS = {
-    [CodemaoWorkType.NEMO.symbol]: {
+    [CodemaoWorkEditor.NEMO.symbol]: {
         authorization_type: 5,
         stag: 2,
         EIO: 3,
         transport: "websocket"
     },
-    [CodemaoWorkType.KITTEN.symbol]: {
+    [CodemaoWorkEditor.KITTEN.symbol]: {
         authorization_type: 1,
         stag: 1,
         EIO: 3,
         transport: "websocket"
-    }
+    },
+    [CodemaoWorkEditor.KITTEN_N.symbol]: {
+        authorization_type: 5,
+        stag: 3,
+        token: "",
+        EIO: 3,
+        transport: "websocket"
+    },
 }
 
 export class KittenCloudWebSocket {
@@ -85,17 +92,17 @@ export class KittenCloudWebSocket {
     private async getSocket(this: this, argument: CodemaoWork | WebSocketProxy | WebSocket): Promise<WebSocketProxy> {
         if (argument instanceof CodemaoWork) {
             const url: string = await (async (): Promise<string> => {
-                const scheme = window.location.protocol == "https:" ? "wss" : "ws"
-                const host = ["socketcv", "codemao", "cn"].join(".")
+                const scheme: "wss" | "ws" = typeof global == "object" || window.location.protocol == "https:" ? "wss" : "ws"
+                const host: string = ["socketcv", "codemao", "cn"].join(".")
                 const port = 9096
                 const path = "/cloudstorage/"
-                const particularParams = KITTEN_WEB_SOCKET_URL_PARAMS[(await argument.info.type).symbol]
+                const particularParams: object | None = KITTEN_WEB_SOCKET_URL_PARAMS[(await argument.info.editor).symbol]
                 if (particularParams == None) {
-                    throw new Error(`不支持的作品类型: ${(await argument.info.type).name}`)
+                    throw new Error(`不支持的作品类型: ${(await argument.info.editor).name}`)
                 }
                 const params = `session_id=${await argument.info.id}&${
                     Object.entries(particularParams)
-                    .map(([key, value]): string => `${key}=${value}`)
+                    .map(([key, value]: [string, unknown]): string => `${key}=${value}`)
                     .join("&")
                 }`
                 return `${scheme}://${host}:${port}${path}?${params}`

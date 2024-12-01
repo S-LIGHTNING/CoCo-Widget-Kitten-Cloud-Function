@@ -12,7 +12,7 @@ export type KittenCloudVariableValue = number | string
 /**
  * 云变量变化消息的类型，当云变量的值被改变时会收到此消息，详见{@link KittenCloudVariable.changed}。
  */
-export type KittenCloudVariableChangeMessage = {
+export type KittenCloudVariableChangeMessageObject = {
     source: KittenCloudDataUpdateSource,
     originalValue: KittenCloudVariableValue,
     newValue: KittenCloudVariableValue
@@ -26,9 +26,9 @@ export abstract class KittenCloudVariable extends KittenCloudData {
     /**
      * 云变量的值改变信号，当云变量的值发生改变时触发此信号。
      *
-     * 变化消息类型详见{@link KittenCloudVariableChangeMessage}。
+     * 变化消息类型详见{@link KittenCloudVariableChangeMessageObject}。
      */
-    public readonly changed: Signal<KittenCloudVariableChangeMessage>
+    public readonly changed: Signal<KittenCloudVariableChangeMessageObject>
 
     public constructor(
         connection: KittenCloudFunction,
