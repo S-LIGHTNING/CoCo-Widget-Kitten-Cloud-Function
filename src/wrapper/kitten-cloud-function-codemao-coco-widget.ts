@@ -11,7 +11,7 @@ import { KittenCloudOnlineUserNumber, KittenCloudOnlineUserNumberChangObject } f
 import { KittenCloudPrivateVariableGroup } from "../module/cloud-data/group/kitten-cloud-private-variable-group"
 import { KittenCloudPublicVariableGroup } from "../module/cloud-data/group/kitten-cloud-public-variable-group"
 import { KittenCloudListGroup } from "../module/cloud-data/group/kitten-cloud-list-group"
-import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, SLIGHTNINGWidget, ValueType } from "slightning-coco-widget"
+import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, SLIGHTNINGWidgetSuper, ValueType } from "slightning-coco-widget"
 const { project } = require("../../project")
 
 const VariableValueType: ValueType[] = [ ValueType.NUMBER, ValueType.STRING ]
@@ -776,40 +776,10 @@ const types: SLIGHTNINGTypesObject = {
 const userMap = new Map<number, CodemaoUser>()
 userMap.set(0, KittenCloudFunction.user)
 
-function getErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-        return error.message
-    } else if (Array.isArray(error)) {
-        return error.map(getErrorMessage).join("\n")
-    } else if (typeof error == "string") {
-        return error
-    } else {
-        return JSON.stringify(error)
-    }
-}
-
-class KittenCloudFunctionWidget extends SLIGHTNINGWidget(types, InvisibleWidget) {
+class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWidget) {
 
     private connection: KittenCloudFunction | None
     private isOpened: boolean = false
-
-    private warn(this: this, message: string): void {
-        this.widgetWarn(message)
-    }
-
-    private error(this: this, error: unknown): void {
-        let message: string = getErrorMessage(error)
-        if (error instanceof Error) {
-            error.message = `${types.title}：${error.message}`
-        } else if (typeof error == "string") {
-            error = `${types.title}：${error}`
-        } else {
-            error = [types.title, error]
-        }
-        console.error(error)
-        this.widgetError(message)
-        this.emit("onError", message)
-    }
 
     private getConnection(this: this): KittenCloudFunction {
         if (this.connection == None) {

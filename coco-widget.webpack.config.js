@@ -1,6 +1,5 @@
 const webpack = require("webpack")
 const global = require("./global.webpack.config")
-const TerserPlugin = require("terser-webpack-plugin")
 const SCW = require("slightning-coco-widget--webpack")
 
 // @ts-ignore
