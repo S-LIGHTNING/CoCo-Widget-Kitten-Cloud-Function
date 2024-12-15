@@ -1,6 +1,5 @@
 const path = require("path")
 const TerserPlugin = require("terser-webpack-plugin")
-const UnminifiedWebpackPlugin = require("unminified-webpack-plugin")
 
 module.exports = {
     mode: "development",
@@ -41,7 +40,5 @@ module.exports = {
     },
     externalsType: "var",
     externals: {},
-    plugins: [
-        // new UnminifiedWebpackPlugin()
-    ]
+    plugins: []
 }

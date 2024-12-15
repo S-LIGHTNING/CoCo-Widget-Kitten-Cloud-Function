@@ -8,7 +8,8 @@ module.exports = {
     mode: global.mode,
     stats: global.stats,
     entry: {
-        [project.name + "（窜改猴用户脚本版）"]: "./src/wrapper/kitten-cloud-function-tampermonkey-user-script.ts"
+        [project.name + "（窜改猴用户脚本版）" + ".js"]: "./src/wrapper/kitten-cloud-function-tampermonkey-user-script.ts",
+        [project.name + "（窜改猴用户脚本版）" + ".min.js"]: "./src/wrapper/kitten-cloud-function-tampermonkey-user-script.ts"
     },
     output: global.output,
     optimization: global.optimization,
