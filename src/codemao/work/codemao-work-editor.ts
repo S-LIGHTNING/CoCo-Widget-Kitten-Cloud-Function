@@ -1,9 +1,22 @@
 /** 作品使用的编辑器。*/ export class CodemaoWorkEditor {
 
-    /** 作品使用的编辑器为 Nemo。*/ static readonly NEMO: CodemaoWorkEditor = new CodemaoWorkEditor("NEMO")
-    /** 作品使用的编辑器为 Kitten。*/ static readonly KITTEN: CodemaoWorkEditor = new CodemaoWorkEditor("KITTEN")
-    /** 作品使用的编辑器为 Kitten·N。*/ static readonly KITTEN_N: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten·N")
-    /** 作品使用的编辑器为 CoCo。*/ static readonly COCO: CodemaoWorkEditor = new CodemaoWorkEditor("COCO")
+    /** 作品使用的编辑器为 Nemo。*/
+    static readonly NEMO: CodemaoWorkEditor = new CodemaoWorkEditor("Nemo", "NEMO")
+
+    /** 作品使用的编辑器为 Kitten。*/
+    static readonly KITTEN: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten", "KITTEN")
+
+    /** 作品使用的编辑器为 Kitten·N。*/
+    static readonly KITTEN_N: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten·N", "NEKO")
+
+    /** 作品使用的编辑器为 Kitten·N。“KittenN”为 Kitten·N 的别名 */
+    static readonly KITTENN: CodemaoWorkEditor = CodemaoWorkEditor.KITTEN_N
+
+    /** 作品使用的编辑器为 Kitten·N。“NEKO”为 Kitten·N 的开发代号 */
+    static readonly NEKO: CodemaoWorkEditor = CodemaoWorkEditor.KITTEN_N
+
+    /** 作品使用的编辑器为 CoCo。*/
+    static readonly COCO: CodemaoWorkEditor = new CodemaoWorkEditor("CoCo", "COCO")
 
     static from(argument: string | CodemaoWorkEditor): CodemaoWorkEditor {
         if (argument instanceof CodemaoWorkEditor) {
@@ -21,14 +34,16 @@
     }
 
     /** 作品编辑器名称。*/ public readonly name: string
+    /** 作品编辑器代号。*/ public readonly code: string
     /** 作品编辑器符号。*/ public readonly symbol: symbol
 
-    private constructor(name: string) {
+    private constructor(name: string, code: string) {
         this.name = name
+        this.code = code
         this.symbol = Symbol(name)
     }
 
-    public toString() {
+    public toString(): string {
         return this.name
     }
 }
@@ -39,5 +54,6 @@ const editorMap = {
     "KITTEN2": CodemaoWorkEditor.KITTEN,
     "KITTEN3": CodemaoWorkEditor.KITTEN,
     "KITTEN4": CodemaoWorkEditor.KITTEN,
+    "NEKO": CodemaoWorkEditor.KITTEN_N,
     "COCO": CodemaoWorkEditor.COCO
 }

@@ -54,6 +54,7 @@
         "@types/diff": "^5.2.1",
         "axios": "^1.7.2",
         "commander": "^12.1.0",
+        "crypto-js": "^4.2.0",
         "diff": "^5.2.0",
         "slightning-coco-widget": "1.0.1-alpha.4"
     },

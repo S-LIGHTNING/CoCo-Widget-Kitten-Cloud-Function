@@ -3,11 +3,11 @@ const TerserPlugin = require("terser-webpack-plugin")
 const UnminifiedWebpackPlugin = require("unminified-webpack-plugin")
 
 module.exports = {
-    mode: "production",
+    mode: "development",
     stats: "minimal",
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: "[name].min.js",
+        filename: "[name]",
         environment: {
             arrowFunction: false
         }
@@ -15,6 +15,7 @@ module.exports = {
     optimization: {
         minimizer: [
             new TerserPlugin({
+                include: /\.min\./,
                 terserOptions: {
                     format: {
                         comments: false
@@ -41,6 +42,6 @@ module.exports = {
     externalsType: "var",
     externals: {},
     plugins: [
-        new UnminifiedWebpackPlugin()
+        // new UnminifiedWebpackPlugin()
     ]
 }

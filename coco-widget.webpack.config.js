@@ -9,7 +9,8 @@ module.exports = {
     mode: global.mode,
     stats: global.stats,
     entry: {
-        [project.name + "（编程猫CoCo 控件版）"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
+        [project.name + "（编程猫 CoCo 控件版）" + ".js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts",
+        [project.name + "（编程猫 CoCo 控件版）" + ".min.js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
     },
     output: global.output,
     optimization: global.optimization,
@@ -27,7 +28,7 @@ module.exports = {
         ...SCW.plugins,
         ...global.plugins,
         new webpack.BannerPlugin({
-            banner:[
+            banner: [
                 "==CoCoWidget==",
                 "@name " + project.name,
                 "@author " + project.author,
@@ -37,7 +38,7 @@ module.exports = {
                 "==/CoCoWidget=="
             ].map(line => `// ${line}\n`).join(""),
             raw: true,
-            test: /（编程猫CoCo 控件版）\.js$/,
+            test: /（编程猫 CoCo 控件版）(\.min)?\.js$/,
             entryOnly: true
         })
     ]

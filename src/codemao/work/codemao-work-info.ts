@@ -1,5 +1,5 @@
 import { enumerable, None } from "../../utils/other"
-import { getKittenWorkPublicResource, getNemoWorkPublicResource, getWorkDetail, getWorkInfo } from "../codemao-community-api"
+import { getKittenNWorkPublicResource, getKittenWorkPublicResource, getNemoWorkPublicResource, getWorkDetail, getWorkInfo } from "../codemao-community-api"
 import { CodemaoWorkEditor } from "./codemao-work-editor"
 
 /**
@@ -55,6 +55,13 @@ type KittenPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
     "publishTime"
 >
 
+type KittenNPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
+    "name" |
+    "type" |
+    "publishTime" |
+    "previewURL"
+>
+
 /**
  * ## 编程猫作品信息类
  *
@@ -74,6 +81,7 @@ type KittenPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
  * - {@link getWorkDetail}
  * - {@link getNemoWorkPublicResource}
  * - {@link getKittenWorkPublicResource}
+ * - {@link getKittenNWorkPublicResource}
  *
  * #### 将来可能集成的API接口：
  * - {@link searchWorkByName}
@@ -81,7 +89,7 @@ type KittenPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
  * #### API优先级：
  * - 优先使用 {@link getWorkInfo} 接口获取作品信息，该接口包含了作品的全部信息，但是容易出错。
  * - 如果 {@link getWorkInfo} 接口获取失败，则使用 {@link getWorkDetail} 接口获取作品的大部分信息。
- * - 如果 {@link getWorkDetail} 接口获取失败，则使用 {@link getNemoWorkPublicResource} 和 {@link getKittenWorkPublicResource} 接口获取作品的少部分信息。
+ * - 如果 {@link getWorkDetail} 接口获取失败，则使用 {@link getNemoWorkPublicResource}、{@link getKittenWorkPublicResource} 和 {@link getKittenNWorkPublicResource} 接口获取作品的少部分信息。
  * - 如果所有接口都获取失败，则抛出异常，对应属性的值会被拒绝。
  */
 export class CodemaoWorkInfo {
@@ -90,6 +98,7 @@ export class CodemaoWorkInfo {
     private __workDetail?: Promise<WorkDetailObject>
     private __nemoPublicResource?: Promise<NemoPublicResourceObject>
     private __kittenPublicResource?: Promise<KittenPublicResourceObject>
+    private __kittenNPublicResource?: Promise<KittenNPublicResourceObject>
 
     @enumerable(false)
     private get workInfo(): Promise<WorkInfoObject> {
@@ -203,6 +212,29 @@ export class CodemaoWorkInfo {
         })()
     }
 
+    @enumerable(false)
+    private get kittenNWorkPublicResource(): Promise<KittenNPublicResourceObject> {
+        return (async(): Promise<KittenNPublicResourceObject> => {
+            if (this.__kittenNPublicResource == null) {
+                Object.defineProperty(this, "__kittenNPublicResource", {
+                    value: (async (): Promise<KittenNPublicResourceObject> => {
+                        const source = await getKittenNWorkPublicResource(await this.id)
+                        return {
+                            name: source.name,
+                            type: CodemaoWorkEditor.KITTEN_N,
+                            publishTime: new Date(source.update_time * 1000),
+                            previewURL: source.preview_url
+                        }
+                    })(),
+                    enumerable: false,
+                    configurable: true
+                })
+                this.setCache(await this.__kittenNPublicResource!)
+            }
+            return await this.__kittenNPublicResource!
+        })()
+    }
+
     private __id?: Promise<number>
     private __name?: Promise<string>
     private __type?: Promise<CodemaoWorkEditor>
@@ -247,7 +279,8 @@ export class CodemaoWorkInfo {
                     ).catch((error0) =>
                         Promise.any([
                             this.nemoWorkPublicResource,
-                            this.kittenWorkPublicResource
+                            this.kittenWorkPublicResource,
+                            this.kittenNWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([...error0, ...error1.errors])
                         )
@@ -269,7 +302,8 @@ export class CodemaoWorkInfo {
                     .catch((error0) =>
                         Promise.any([
                             this.nemoWorkPublicResource,
-                            this.kittenWorkPublicResource
+                            this.kittenWorkPublicResource,
+                            this.kittenNWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([error0, ...error1.errors])
                         )
@@ -322,10 +356,12 @@ export class CodemaoWorkInfo {
                 Promise.reject(new Error("没有提供发布时间")),
                 this.workInfo
                     .catch((error0) =>
-                        this.kittenWorkPublicResource
-                            .catch((error1) =>
-                                Promise.reject([error0, error1])
-                            )
+                        Promise.any([
+                            this.kittenWorkPublicResource,
+                            this.kittenNWorkPublicResource
+                        ]).catch((error1) =>
+                            Promise.reject([error0, ...error1.errors])
+                        )
                     ).then((info) => info.publishTime)
             ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
         }
@@ -399,10 +435,12 @@ export class CodemaoWorkInfo {
                             Promise.reject([error0, error1])
                         )
                     ).catch((error0) =>
-                        this.nemoWorkPublicResource
-                            .catch((error1) =>
-                                Promise.reject([...error0, error1])
-                            )
+                        Promise.any([
+                            this.nemoWorkPublicResource,
+                            this.kittenNWorkPublicResource
+                        ]).catch((error1) =>
+                            Promise.reject([...error0, ...error1.errors])
+                        )
                     ).then((info) => info.previewURL)
             ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
         }

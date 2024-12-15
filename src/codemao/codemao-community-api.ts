@@ -1,60 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios"
+import CryptoJS from "crypto-js"
 import { CodemaoUserSex } from "./user/codemao-user-sex"
-import { None } from "../utils/other"
-
-async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
-    try {
-        const { data } = await axios<T>(argument)
-        if (
-            data != None && typeof data == "object" &&
-            "code" in data && typeof data.code == "number" &&
-            "msg" in data && typeof data.msg == "string" &&
-            "description" in data && typeof data.description == "string" &&
-            "data" in data
-        ) {
-            if (data.code != 200) {
-                const error = new Error()
-                Object.assign(error, {
-                    request: argument,
-                    response: {
-                        status: data.code,
-                        statusText: "未知错误",
-                        data: data
-                    }
-                })
-                throw error
-            }
-            return data.data as T
-        }
-        return data as T
-    } catch (error) {
-        if (!axios.isAxiosError(error)) {
-            throw error
-        }
-        const { request, response } = error
-        try {
-            if (request == None) {
-                throw new Error("请求发送失败")
-            } else if (response == None) {
-                throw new Error("请求已发出，但未收到响应")
-            } else {
-                const { status, data } = response
-                if (!(
-                    typeof data == "object" &&
-                    ("error_message" in data || "error" in data || "msg" in data)
-                )) {
-                    throw new Error(status.toString())
-                }
-                throw new Error(`${status}，${data.error_message ?? data.error ?? data.msg}`)
-            }
-        } catch (error) {
-            if (!(error instanceof Error)) {
-                throw error
-            }
-            throw new Error(`${argument.method} ${argument.url} 失败：${error.message}`)
-        }
-    }
-}
+import { LOWER_CASE_LETTER, None, NUMBER_CHAR, randomString } from "../utils/other"
 
 export type UserProfileObject = {
     id: number
@@ -272,19 +219,138 @@ export type KittenWorkPublicResourceObject = {
     version: string
 }
 
+export type KittenNWorkPublicResourceObject = {
+    name: string,
+    source_urls: string[],
+    bcm_url: string,
+    bcm_version: `${number}.${number}.${number}`
+    preview_url: string,
+    update_time: number,
+    author_id: `${number}`
+    hardware_mode: number
+    blink_mode: string
+}
+
+async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
+    try {
+        const { data } = await axios<T>(argument)
+        if (
+            data != None && typeof data == "object" &&
+            "code" in data && typeof data.code == "number" &&
+            "msg" in data && typeof data.msg == "string" &&
+            "data" in data
+        ) {
+            if (data.code != 200) {
+                const error = new Error()
+                Object.assign(error, {
+                    request: argument,
+                    response: {
+                        status: data.code,
+                        statusText: "未知错误",
+                        data: data
+                    }
+                })
+                throw error
+            }
+            return data.data as T
+        }
+        return data as T
+    } catch (error) {
+        if (!axios.isAxiosError(error)) {
+            throw error
+        }
+        const { request, response } = error
+        try {
+            if (request == None) {
+                throw new Error("请求发送失败")
+            } else if (response == None) {
+                throw new Error("请求已发出，但未收到响应")
+            } else {
+                const { status, data } = response
+                if (!(
+                    typeof data == "object" &&
+                    ("error_message" in data || "error" in data || "msg" in data)
+                )) {
+                    throw new Error(status.toString())
+                }
+                throw new Error(`${status}，${data.error_message ?? data.error ?? data.msg}`)
+            }
+        } catch (error) {
+            if (!(error instanceof Error)) {
+                throw error
+            }
+            throw new Error(`${argument.method} ${argument.url} 失败：${error.message}`)
+        }
+    }
+}
+
+/**
+ * https://api.codemao.cn/coconut/clouddb/currentTime
+ */
+export async function getCurrentTime(): Promise<number> {
+    return codemaoAxios({
+        method: "GET",
+        url: "https://api.codemao.cn/coconut/clouddb/currentTime"
+    })
+}
+
+let timeDifference: number | None = None
+
+/**
+ * 获取本地时间与 {@link getCurrentTime} 的差异
+ */
+export async function getTimeDifference(): Promise<number> {
+    if (timeDifference == None) {
+        timeDifference = await getCurrentTime()
+    }
+    return Math.round(Date.now() / 1000) - timeDifference
+}
+
+/**
+ * 获取通过 {@link getTimeDifference} 校准过的时间戳
+ */
+export async function getCalibratedTimestamp(): Promise<number> {
+    return Math.round(Date.now() / 1000) - await getTimeDifference()
+}
+
+export function getSignUUID(): string {
+    let signUUID: string = localStorage.getItem("sign_uuid") ??
+        randomString(8, NUMBER_CHAR.concat(LOWER_CASE_LETTER))
+    localStorage.setItem("sign_uuid", signUUID)
+    return signUUID
+}
+
+export function getClientID(): string {
+    return getSignUUID()
+}
+
+export async function setXCreationToolsDeviceAuth(argument: AxiosRequestConfig): Promise<AxiosRequestConfig> {
+    let timestamp: number = await getCalibratedTimestamp()
+    let clientID: string = getClientID()
+    argument.headers ??= {}
+    argument.headers["X-Creation-Tools-Device-Auth"] = JSON.stringify({
+        sign: CryptoJS.SHA256("pBlYqXbJDu" + timestamp + clientID).toString().toLocaleUpperCase(),
+        timestamp,
+        client_id: clientID
+    })
+    return argument
+}
+
 /**
  * https://api.codemao.cn/tiger/v3/web/accounts/profile
+ *
  * @param authorization 用户凭证，留空则使用浏览器 Cookie
+ *
  * @returns 用户信息
  */
 export async function getUserProfile(authorization?: string | None): Promise<UserProfileObject> {
     const headers = authorization == null ? {} : { Cookie: `Authorization=${authorization}` }
-    return (await codemaoAxios({
+    return codemaoAxios({
         method: "GET",
         url: "https://api.codemao.cn/tiger/v3/web/accounts/profile",
         withCredentials: true,
         headers
-    }))
+    })
 }
 
 /**
@@ -363,4 +429,14 @@ export function getKittenWorkPublicResource(workID: number): Promise<KittenWorkP
         method: "GET",
         url: `https://api-creation.codemao.cn/kitten/r2/work/player/load/${workID}`
     })
+}
+
+/**
+ * https://api-creation.codemao.cn/neko/community/player/published-work-detail/${workID}
+ */
+export async function getKittenNWorkPublicResource(workID: number): Promise<KittenNWorkPublicResourceObject> {
+    return codemaoAxios(await setXCreationToolsDeviceAuth({
+        method: "GET",
+        url: `https://api-creation.codemao.cn/neko/community/player/published-work-detail/${workID}`
+    }))
 }

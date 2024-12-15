@@ -55,3 +55,20 @@ export function enumerable(value: boolean): (target: unknown, propertyKey: strin
         descriptor.enumerable = value
     }
 }
+
+export const
+    NUMBER_CHAR: string = "0123456789",
+    LOWER_CASE_LETTER: string = "abcdefghijklmnopqrstuvwxyz",
+    UPPER_CASE_LETTER: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    LETTER: string = LOWER_CASE_LETTER.concat(UPPER_CASE_LETTER)
+
+export function randomString(
+    length: number = 32,
+    charset: string = NUMBER_CHAR.concat(LETTER)
+): string {
+    let result: string = ""
+    for (let i: number = 0; i < length; i++) {
+        result += charset[Math.floor(Math.random() * charset.length)]
+    }
+    return result
+}
