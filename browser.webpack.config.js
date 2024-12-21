@@ -1,28 +1,40 @@
+const webpack = require("webpack")
 const global = require("./global.webpack.config")
 
-// @ts-ignore
 const { project } = require("./project")
 
-module.exports = {
-    mode: global.mode,
-    stats: global.stats,
-    entry: {
-        [project.title + "-browser" + ".js"]: "./src/wrapper/kitten-cloud-function-browser.ts",
-        [project.title + "-browser" + ".min.js"]: "./src/wrapper/kitten-cloud-function-browser.ts"
-    },
-    output: global.output,
-    optimization: global.optimization,
-    module: {
-        rules: [
-            ...global.module.rules
+module.exports = function (env, argv) {
+    const globalConfig = global(env, argv)
+    return {
+        mode: globalConfig.mode,
+        stats: globalConfig.stats,
+        entry: globalConfig.entry({
+            [project.title + "-browser" + ".js"]: "./src/wrapper/kitten-cloud-function-browser.ts"
+        }),
+        output: globalConfig.output,
+        optimization: globalConfig.optimization,
+        module: {
+            rules: [
+                ...globalConfig.module.rules
+            ]
+        },
+        resolve: {
+            extensions: globalConfig.resolve.extensions
+        },
+        externalsType: globalConfig.externalsType,
+        externals: globalConfig.externals,
+        plugins: [
+            ...globalConfig.plugins,
+            new webpack.BannerPlugin({
+                banner: "/**" + "\n" + [
+                    "@name " + project.name,
+                    "@author " + project.author,
+                    "@version " + project.version,
+                    "@license " + project.license
+                ].map(line => ` * ${line}\n`).join("") + " */" + "\n",
+                raw: true,
+                entryOnly: true
+            })
         ]
-    },
-    resolve: {
-        extensions: global.resolve.extensions
-    },
-    externalsType: global.externalsType,
-    externals: global.externals,
-    plugins: [
-        ...global.plugins
-    ]
+    }
 }
