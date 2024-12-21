@@ -43,9 +43,9 @@
     },
     "homepage": "https://s-lightning.github.io/Kitten-Cloud-Function/",
     "scripts": {
-        "build:coco-widget": "webpack --config coco-widget.webpack.config.js && webpack --config coco-widget.webpack.config.js --env transformed",
-        "build:browser": "webpack --config browser.webpack.config.js && webpack --config browser.webpack.config.js --env transformed",
-        "build:tampermonkey": "webpack --config tampermonkey.webpack.config.js && webpack --config tampermonkey.webpack.config.js --env transformed",
+        "build:coco-widget": "webpack --config coco-widget.webpack.config.js && webpack --config coco-widget.webpack.config.js --env transform",
+        "build:browser": "webpack --config browser.webpack.config.js && webpack --config browser.webpack.config.js --env transform",
+        "build:tampermonkey": "webpack --config tampermonkey.webpack.config.js && webpack --config tampermonkey.webpack.config.js --env transform",
         "build:package": "tsc",
         "build:docs": "typedoc --sort static-first --sort source-order --plugin typedoc-material-theme",
         "build": "npm run build:coco-widget && npm run build:browser && npm run build:tampermonkey && npm run build:package && npm run build:docs"

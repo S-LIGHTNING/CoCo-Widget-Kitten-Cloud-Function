@@ -3,7 +3,7 @@ const TerserPlugin = require("terser-webpack-plugin")
 
 module.exports = function (env, argv) {
     const config = {
-        mode: "production",
+        mode: "development",
         stats: "minimal",
         /**
          * @param {{ [x: string]: string }} entry
@@ -14,11 +14,15 @@ module.exports = function (env, argv) {
             const newEntry = {}
             for (const name in entry) {
                 if (env.transform) {
-                    newEntry[name.replace(/(?=\.[a-z]+$)/, ".transformed")] = entry[name]
-                    newEntry[name.replace(/(?=\.[a-z]+$)/, ".transformed.min")] = entry[name]
+                    if (config.mode == "production") {
+                        newEntry[name.replace(/(?=\.[a-z]+$)/, ".transformed")] = entry[name]
+                        newEntry[name.replace(/(?=\.[a-z]+$)/, ".transformed.min")] = entry[name]
+                    }
                 } else {
                     newEntry[name] = entry[name]
-                    newEntry[name.replace(/(?=\.[a-z]+$)/, ".min")] = entry[name]
+                    if (config.mode == "production") {
+                        newEntry[name.replace(/(?=\.[a-z]+$)/, ".min")] = entry[name]
+                    }
                 }
             }
             return newEntry
