@@ -1,4 +1,4 @@
-import { None } from "../../utils/other"
+import { enumerable, None } from "../../utils/other"
 import { getThisUserDetail, getUserProfile, getUserDetail, getUserHonor } from "../codemao-community-api"
 import { CodemaoUserSex } from "./codemao-user-sex"
 
@@ -6,23 +6,23 @@ import { CodemaoUserSex } from "./codemao-user-sex"
  * 用户信息对象。
  */
 export type CodemaoUserInfoObject = {
-    authorization?: string | None,
-    id?: number,
-    username?: string,
-    nickname?: string,
-    realname?: string,
-    avatarURL?: string,
-    coverURL?: string,
-    description?: string,
-    doing?: string,
-    email?: string,
-    level?: number,
-    grade?: number,
-    birthday?: Date,
-    sex?: CodemaoUserSex,
-    viewTimes?: number,
-    praiseTimes?: number,
-    collectTimes?: number,
+    authorization?: string | None
+    id?: number
+    username?: string
+    nickname?: string
+    realname?: string
+    avatarURL?: string
+    coverURL?: string
+    description?: string
+    doing?: string
+    email?: string
+    level?: number
+    grade?: number
+    birthday?: Date
+    sex?: CodemaoUserSex
+    viewTimes?: number
+    praiseTimes?: number
+    collectTimes?: number
     forkTimes?: number
 }
 
@@ -125,7 +125,7 @@ export class CodemaoUserInfo {
                     enumerable: false,
                     configurable: true
                 })
-                this.set(await this.__profile!)
+                this.setCache(await this.__profile!)
             }
             return this.__profile!
         })()
@@ -138,7 +138,7 @@ export class CodemaoUserInfo {
                     value: (async (): Promise<ThisUserDetailObject> => {
                         const userDetail = await getThisUserDetail(await this.authorization)
                         return {
-                            id: userDetail.id,
+                            id: parseInt(userDetail.id),
                             username: userDetail.username,
                             nickname: userDetail.nickname,
                             realname: userDetail.real_name,
@@ -152,7 +152,7 @@ export class CodemaoUserInfo {
                     enumerable: false,
                     configurable: true
                 })
-                this.set(await this.__thisDetail!)
+                this.setCache(await this.__thisDetail!)
             }
             return this.__thisDetail!
         })()
@@ -180,7 +180,7 @@ export class CodemaoUserInfo {
                     enumerable: false,
                     configurable: true
                 })
-                this.set(await this.__detail!)
+                this.setCache(await this.__detail!)
             }
             return this.__detail!
         })()
@@ -209,7 +209,7 @@ export class CodemaoUserInfo {
                     enumerable: false,
                     configurable: true
                 })
-                this.set(await this.__honor!)
+                this.setCache(await this.__honor!)
             }
             return this.__honor!
         })()
@@ -237,6 +237,7 @@ export class CodemaoUserInfo {
     /**
      * 身份信息。
      */
+    @enumerable(true)
     public get authorization(): Promise<string | None> {
         if (this.__authorization == None) {
             this.__authorization = Promise.reject(new Error("没有提供身份信息"))
@@ -247,6 +248,7 @@ export class CodemaoUserInfo {
     /**
      * 用户ID。
      */
+    @enumerable(true)
     public get id(): Promise<number> {
         if (this.__id == None) {
             this.__id = Promise.any([
@@ -263,6 +265,7 @@ export class CodemaoUserInfo {
     /**
      * 用户名，用户名可以用于登录编程猫账号。如果用户没有设置用户名，则返回空字符串。
      */
+    @enumerable(true)
     public get username(): Promise<string> {
         if (this.__username == None) {
             this.__username = Promise.any([
@@ -276,6 +279,7 @@ export class CodemaoUserInfo {
     /**
      * 用户昵称。
      */
+    @enumerable(true)
     public get nickname(): Promise<string> {
         if (this.__nickname == None) {
             this.__nickname = Promise.any([
@@ -295,6 +299,7 @@ export class CodemaoUserInfo {
     /**
      * 用户真实姓名。如果用户没有填写真实姓名，则返回空字符串。
      */
+    @enumerable(true)
     public get realname(): Promise<string> {
         if (this.__realname == None) {
             this.__realname = Promise.any([
@@ -308,6 +313,7 @@ export class CodemaoUserInfo {
     /**
      * 用户头像地址。
      */
+    @enumerable(true)
     public get avatarURL(): Promise<string> {
         if (this.__avatarURL == None) {
             this.__avatarURL = Promise.any([
@@ -327,6 +333,7 @@ export class CodemaoUserInfo {
     /**
      * 用户背景图片地址。
      */
+    @enumerable(true)
     public get coverURL(): Promise<string> {
         if (this.__coverURL == None) {
             this.__coverURL = Promise.any([
@@ -340,6 +347,7 @@ export class CodemaoUserInfo {
     /**
      * 用户描述。
      */
+    @enumerable(true)
     public get description(): Promise<string> {
         if (this.__description == None) {
             this.__description = Promise.any([
@@ -359,6 +367,7 @@ export class CodemaoUserInfo {
     /**
      * 用户正在做什么。
      */
+    @enumerable(true)
     public get doing(): Promise<string> {
         if (this.__doing == None) {
             this.__doing = Promise.any([
@@ -372,6 +381,7 @@ export class CodemaoUserInfo {
     /**
      * 用户邮箱地址。
      */
+    @enumerable(true)
     public get email(): Promise<string> {
         if (this.__email == None) {
             this.__email = Promise.any([
@@ -385,6 +395,7 @@ export class CodemaoUserInfo {
     /**
      * 用户级别。
      */
+    @enumerable(true)
     public get level(): Promise<number> {
         if (this.__level == None) {
             this.__level = Promise.any([
@@ -398,6 +409,7 @@ export class CodemaoUserInfo {
     /**
      * 用户等级。
      */
+    @enumerable(true)
     public get grade(): Promise<number> {
         if (this.__grade == None) {
             this.__grade = Promise.any([
@@ -411,6 +423,7 @@ export class CodemaoUserInfo {
     /**
      * 用户生日。
      */
+    @enumerable(true)
     public get birthday(): Promise<Date> {
         if (this.__birthday == None) {
             this.__birthday = Promise.any([
@@ -428,6 +441,7 @@ export class CodemaoUserInfo {
     /**
      * 用户性别。详见 {@link CodemaoUserSex}。
      */
+    @enumerable(true)
     public get sex(): Promise<CodemaoUserSex> {
         if (this.__sex == None) {
             this.__sex = Promise.any([
@@ -445,6 +459,7 @@ export class CodemaoUserInfo {
     /**
      * 用户所有作品被浏览的次数总和。
      */
+    @enumerable(true)
     public get viewTimes(): Promise<number> {
         if (this.__viewTimes == None) {
             this.__viewTimes = Promise.any([
@@ -462,6 +477,7 @@ export class CodemaoUserInfo {
     /**
      * 用户所有作品被点赞的次数总和。
      */
+    @enumerable(true)
     public get praiseTimes(): Promise<number> {
         if (this.__praiseTimes == None) {
             this.__praiseTimes = Promise.any([
@@ -479,6 +495,7 @@ export class CodemaoUserInfo {
     /**
      * 用户所有作品被收藏的次数总和。
      */
+    @enumerable(true)
     public get collectTimes(): Promise<number> {
         if (this.__collectTimes == None) {
             this.__collectTimes = Promise.any([
@@ -492,6 +509,7 @@ export class CodemaoUserInfo {
     /**
      * 用户所有作品被再创作的次数总和。
      */
+    @enumerable(true)
     public get forkTimes(): Promise<number> {
         if (this.__forkTimes == None) {
             this.__forkTimes = Promise.any([
@@ -513,11 +531,11 @@ export class CodemaoUserInfo {
         if (Object.keys(info).length == 0) {
             this.__authorization = Promise.resolve(None)
         } else {
-            this.set(info)
+            this.setCache(info)
         }
     }
 
-    public set(info: CodemaoUserInfoObject): void {
+    public setCache(info: CodemaoUserInfoObject): void {
         for (let key in info) {
             let value: typeof info[keyof typeof info] = info[key as keyof typeof info]
             if (value != None) {

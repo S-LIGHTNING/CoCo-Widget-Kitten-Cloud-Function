@@ -14,6 +14,8 @@ import { KittenCloudListGroup } from "../module/cloud-data/group/kitten-cloud-li
 import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, SLIGHTNINGWidgetSuper, ValueType } from "slightning-coco-widget"
 const { project } = require("../../project")
 
+declare const KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED: boolean
+
 const VariableValueType: ValueType[] = [ ValueType.NUMBER, ValueType.STRING ]
 const ListItemValueType: ValueType[] = [ ValueType.NUMBER, ValueType.STRING ]
 
@@ -22,7 +24,7 @@ const types: SLIGHTNINGTypesObject = {
     title: project.name,
     author: project.author,
     icon: "icon-widget-cloud-room",
-	version: project.version,
+	version: project.version + (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED ? " (modification restricted)" : ""),
     license: project.license,
     docs: project.docs,
     isInvisibleWidget: true,
@@ -793,10 +795,11 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
             this.close()
             this.warn("上一个连接未断开，已自动断开")
         }
+        if (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED) {
+            this.warn("当前版本为修改受限版版，只能修改自己作品的云数据")
+        }
         this.isOpened = false
-        this.connection = new KittenCloudFunction(
-            new CodemaoWork({ id: workID })
-        )
+        this.connection = new KittenCloudFunction(workID)
         this.connection.publicVariable.getAll().then(
             (variableArray: KittenCloudPublicVariable[]): void => {
                 for (const variable of variableArray) {
@@ -876,7 +879,25 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this.connection.closed.connect(this.handleClose)
     }
 
-    private handleClose = (): void => {
+    private async checkModifiable(this: this): Promise<void> {
+        if (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED) {
+            let expectedWorkAuthorID: number | None = None
+            const thisWorkID: number = parseInt(location.pathname.split("/").pop() ?? "")
+            if (!Number.isNaN(thisWorkID)) {
+                expectedWorkAuthorID = await (await new CodemaoWork({ id: thisWorkID }).info.author).info.id
+            } else if (!Number.isNaN(parseInt(new URLSearchParams(location.hash.slice(1)).get("id") ?? ""))) {
+                expectedWorkAuthorID = await KittenCloudFunction.user.info.id
+            }
+            if (expectedWorkAuthorID == None) {
+                return
+            }
+            if (await (await this.getConnection().work.info.author).info.id != expectedWorkAuthorID) {
+                throw new Error(`当前版本为修改受限版版，只能修改自己作品的云数据，而 ${await this.getConnection().work.info.name} 不是你的作品`)
+            }
+        }
+    }
+
+    private handleClose: () => void = (): void => {
         this.connection = None
         this.emit("onClose")
     }
@@ -1058,7 +1079,8 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     public async variableSet(this: this, name: string, value: KittenCloudVariableValue): Promise<void> {
-        (await this.getVariable(name)).set(value)
+        await this.checkModifiable()
+        ;(await this.getVariable(name)).set(value)
     }
 
     public async getRankingList(
@@ -1168,7 +1190,12 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
-    public async listIndex(this: this, list: KittenCloudList, indexingMode: string, index: number): Promise<number> {
+    public async listIndex(
+        this: this,
+        list: KittenCloudList,
+        indexingMode: string,
+        index: number
+    ): Promise<number> {
         switch (indexingMode) {
             case "forward": return index - 1
             case "backward": return list.length - index
@@ -1195,7 +1222,13 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         return (await this.getList(name)).copy()
     }
 
-    public async listAppend(this: this, value: KittenCloudListItemValue, name: string, position: string): Promise<void> {
+    public async listAppend(
+        this: this,
+        value: KittenCloudListItemValue,
+        name: string,
+        position: string
+    ): Promise<void> {
+        await this.checkModifiable()
         switch (position) {
             case "head":
                 (await this.getList(name)).push(value)
@@ -1208,8 +1241,13 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     public async listAdd(
-        this: this, value: KittenCloudListItemValue, name: string, indexingMode: string, index: number
+        this: this,
+        value: KittenCloudListItemValue,
+        name: string,
+        indexingMode: string,
+        index: number
     ): Promise<void> {
+        await this.checkModifiable()
         const list: KittenCloudList = await this.getList(name)
         list.add(await this.listIndex(list, indexingMode, index), value)
     }
@@ -1217,6 +1255,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     public async listRemove(
         this: this, name: string, indexingMode: string, index: number
     ): Promise<void> {
+        await this.checkModifiable()
         const list: KittenCloudList = await this.getList(name)
         if (indexingMode == "backward" && index == 1) {
             list.pop()
@@ -1226,12 +1265,18 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     public async listEmpty(this: this, name: string): Promise<void> {
-        (await this.getList(name)).empty()
+        await this.checkModifiable()
+        ;(await this.getList(name)).empty()
     }
 
     public async listReplace(
-        this: this, name: string, indexingMode: string, index: number, value: KittenCloudListItemValue
+        this: this,
+        name: string,
+        indexingMode: string,
+        index: number,
+        value: KittenCloudListItemValue
     ): Promise<void> {
+        await this.checkModifiable()
         const list: KittenCloudList = await this.getList(name)
         if (indexingMode == "backward" && index == 1) {
             list.replaceLast(value)
@@ -1243,6 +1288,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     public async listCopy(
         this: this, list1: string | KittenCloudListItemValue[], list2name: string
     ): Promise<void> {
+        await this.checkModifiable()
         if (typeof list1 == "string") {
             list1 = (await this.getList(list1)).value
         }
@@ -1261,7 +1307,11 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     public async listFind(
-        this: this, name: string, countingMode: string, count: number, value: KittenCloudListItemValue
+        this: this,
+        name: string,
+        countingMode: string,
+        count: number,
+        value: KittenCloudListItemValue
     ): Promise<number> {
         const list: KittenCloudList = await this.getList(name)
         switch (countingMode) {

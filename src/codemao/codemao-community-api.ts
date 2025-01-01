@@ -22,7 +22,7 @@ export type UserProfileObject = {
 }
 
 export type ThisUserDetailObject = {
-    id: number,
+    id: `${number}`,
     nickname: string,
     avatar_url: string,
     email: string,

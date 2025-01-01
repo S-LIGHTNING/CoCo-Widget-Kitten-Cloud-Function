@@ -10,7 +10,7 @@ module.exports = function (env, argv) {
         mode: globalConfig.mode,
         stats: globalConfig.stats,
         entry: globalConfig.entry({
-            [project.name + "（编程猫 CoCo 控件版）" + ".js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
+            [project.name + "（编程猫 CoCo 控件版）" + (env.noModificationRestriction ? "" : "（修改受限版）") + ".js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
         }),
         output: globalConfig.output,
         optimization: globalConfig.optimization,
@@ -38,6 +38,9 @@ module.exports = function (env, argv) {
                 ].map(line => `// ${line}\n`).join(""),
                 raw: true,
                 entryOnly: true
+            }),
+            new webpack.DefinePlugin({
+                "KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED": !env.noModificationRestriction
             })
         ]
     }

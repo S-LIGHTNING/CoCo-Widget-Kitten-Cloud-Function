@@ -1,5 +1,8 @@
 import { enumerable, None } from "../../utils/other"
-import { getKittenNWorkPublicResource, getKittenWorkPublicResource, getNemoWorkPublicResource, getWorkDetail, getWorkInfo } from "../codemao-community-api"
+import { getKittenNWorkPublicResource as getKitten_NWorkPublicResource, getKittenWorkPublicResource, getNemoWorkPublicResource, getWorkDetail, getWorkInfo } from "../codemao-community-api"
+import { CodemaoUser } from "../user/codemao-user"
+import { CodemaoUserInfoObject } from "../user/codemao-user-info"
+import { CodemaoUserSex } from "../user/codemao-user-sex"
 import { CodemaoWorkEditor } from "./codemao-work-editor"
 
 /**
@@ -8,19 +11,20 @@ import { CodemaoWorkEditor } from "./codemao-work-editor"
 export type CodemaoWorkInfoObject = {
     id?: number,
     name?: string,
-    type?: CodemaoWorkEditor,
-    description?: string,
-    operationInstruction?: string,
-    publishTime?: Date,
-    playerURL?: string,
-    shareURL?: string,
-    coverURL?: string,
-    previewURL?: string,
-    viewTimes?: number,
-    likeTimes?: number,
-    collectTimes?: number,
-    shareTimes?: number,
-    commentTimes?: number,
+    author?: CodemaoUser
+    editor?: CodemaoWorkEditor
+    description?: string
+    operationInstruction?: string
+    publishTime?: Date
+    playerURL?: string
+    shareURL?: string
+    coverURL?: string
+    previewURL?: string
+    viewTimes?: number
+    likeTimes?: number
+    collectTimes?: number
+    shareTimes?: number
+    commentTimes?: number
     openResource?: boolean
 }
 
@@ -29,6 +33,7 @@ type WorkInfoObject = Required<CodemaoWorkInfoObject>
 type WorkDetailObject = Pick<Required<CodemaoWorkInfoObject>,
     "id" |
     "name" |
+    "author" |
     "description" |
     "publishTime" |
     "shareURL" |
@@ -42,7 +47,8 @@ type WorkDetailObject = Pick<Required<CodemaoWorkInfoObject>,
 type NemoPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
     "id" |
     "name" |
-    "type" |
+    "author" |
+    "editor" |
     "coverURL" |
     "previewURL" |
     "viewTimes" |
@@ -51,16 +57,78 @@ type NemoPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
 
 type KittenPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
     "name" |
-    "type" |
+    "editor" |
     "publishTime"
 >
 
-type KittenNPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
+type Kitten_NPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
     "name" |
-    "type" |
+    "author" |
+    "editor" |
     "publishTime" |
     "previewURL"
 >
+
+async function testWorkEditorByKittenCloud(
+    info: CodemaoWorkInfo, editor: CodemaoWorkEditor
+): Promise<Pick<Required<CodemaoWorkInfoObject>, "editor">> {
+
+    const KITTEN_WEB_SOCKET_URL_PARAMS = {
+        [CodemaoWorkEditor.NEMO.symbol]: {
+            authorization_type: 5,
+            stag: 2,
+            EIO: 3,
+            transport: "websocket"
+        },
+        [CodemaoWorkEditor.KITTEN.symbol]: {
+            authorization_type: 1,
+            stag: 1,
+            EIO: 3,
+            transport: "websocket"
+        },
+        [CodemaoWorkEditor.KITTEN_N.symbol]: {
+            authorization_type: 5,
+            stag: 3,
+            token: "",
+            EIO: 3,
+            transport: "websocket"
+        },
+    }
+
+    const url: string = await (async (): Promise<string> => {
+        const scheme: "wss" | "ws" = typeof global == "object" || window.location.protocol == "https:" ? "wss" : "ws"
+        const host: string = ["socketcv", "codemao", "cn"].join(".")
+        const port = 9096
+        const path = "/cloudstorage/"
+        const particularParams: object | None = KITTEN_WEB_SOCKET_URL_PARAMS[(await editor).symbol]
+        if (particularParams == None) {
+            throw new Error(`不支持的作品类型: ${(await editor).name}`)
+        }
+        const params = `session_id=${await info.id}&${
+            Object.entries(particularParams)
+            .map(([key, value]: [string, unknown]): string => `${key}=${value}`)
+            .join("&")
+        }`
+        return `${scheme}://${host}:${port}${path}?${params}`
+    })()
+    const socket = new WebSocket(url)
+    return new Promise((
+        resolve: (value: Pick<Required<CodemaoWorkInfoObject>, "editor">) => void,
+        reject: (reason: Event) => void
+    ): void => {
+        socket.addEventListener("open", (): void => {
+            try {
+                socket.close()
+            } catch (error) {
+                console.error(error)
+            }
+            resolve({ editor })
+        })
+        socket.addEventListener("error", (event: Event): void => {
+            reject(event)
+        })
+    })
+}
 
 /**
  * ## 编程猫作品信息类
@@ -81,7 +149,7 @@ type KittenNPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
  * - {@link getWorkDetail}
  * - {@link getNemoWorkPublicResource}
  * - {@link getKittenWorkPublicResource}
- * - {@link getKittenNWorkPublicResource}
+ * - {@link getKitten_NWorkPublicResource}
  *
  * #### 将来可能集成的API接口：
  * - {@link searchWorkByName}
@@ -89,7 +157,8 @@ type KittenNPublicResourceObject = Pick<Required<CodemaoWorkInfoObject>,
  * #### API优先级：
  * - 优先使用 {@link getWorkInfo} 接口获取作品信息，该接口包含了作品的全部信息，但是容易出错。
  * - 如果 {@link getWorkInfo} 接口获取失败，则使用 {@link getWorkDetail} 接口获取作品的大部分信息。
- * - 如果 {@link getWorkDetail} 接口获取失败，则使用 {@link getNemoWorkPublicResource}、{@link getKittenWorkPublicResource} 和 {@link getKittenNWorkPublicResource} 接口获取作品的少部分信息。
+ * - 如果 {@link getWorkDetail} 接口获取失败，则使用 {@link getNemoWorkPublicResource}、{@link getKittenWorkPublicResource} 和 {@link getKitten_NWorkPublicResource} 接口获取作品的少部分信息。
+ * - 对于作品编辑器类型而言，如果所有接口都获取失败，还会利用 {@link testWorkEditorByKittenCloud} 试探作品类型。
  * - 如果所有接口都获取失败，则抛出异常，对应属性的值会被拒绝。
  */
 export class CodemaoWorkInfo {
@@ -98,7 +167,7 @@ export class CodemaoWorkInfo {
     private __workDetail?: Promise<WorkDetailObject>
     private __nemoPublicResource?: Promise<NemoPublicResourceObject>
     private __kittenPublicResource?: Promise<KittenPublicResourceObject>
-    private __kittenNPublicResource?: Promise<KittenNPublicResourceObject>
+    private __kittenNPublicResource?: Promise<Kitten_NPublicResourceObject>
 
     @enumerable(false)
     private get workInfo(): Promise<WorkInfoObject> {
@@ -110,7 +179,14 @@ export class CodemaoWorkInfo {
                         return {
                             id: workInfo.id,
                             name: workInfo.work_name,
-                            type: CodemaoWorkEditor.parse(workInfo.type),
+                            author: new CodemaoUser({
+                                id: workInfo.user_info.id,
+                                nickname: workInfo.user_info.nickname,
+                                avatarURL: workInfo.user_info.avatar,
+                                description: workInfo.user_info.description,
+                                level: workInfo.user_info.author_level
+                            }),
+                            editor: CodemaoWorkEditor.parse(workInfo.type),
                             description: workInfo.description,
                             operationInstruction: workInfo.operation,
                             publishTime: new Date(workInfo.publish_time * 1000),
@@ -141,10 +217,17 @@ export class CodemaoWorkInfo {
             if (this.__workDetail == None) {
                 Object.defineProperty(this, "__workDetail", {
                     value: (async (): Promise<WorkDetailObject> => {
-                        const { workInfo, qrcodeUrl, allowFork } = await getWorkDetail(await this.id)
+                        const { workInfo, userInfo, qrcodeUrl, allowFork } = await getWorkDetail(await this.id)
                         return {
                             id: workInfo.id,
                             name: workInfo.name,
+                            author: new CodemaoUser({
+                                id: userInfo.id,
+                                nickname: userInfo.nickname,
+                                avatarURL: userInfo.avatar,
+                                description: userInfo.description,
+                                sex: CodemaoUserSex.parse(userInfo.sex)
+                            }),
                             description: workInfo.description,
                             publishTime: new Date(workInfo.publish_time * 1000),
                             shareURL: qrcodeUrl,
@@ -174,7 +257,12 @@ export class CodemaoWorkInfo {
                         return {
                             id: source.work_id,
                             name: source.name,
-                            type: CodemaoWorkEditor.NEMO,
+                            author: new CodemaoUser({
+                                id: source.user.id,
+                                nickname: source.user.nickname,
+                                avatarURL: source.user.avatar_url
+                            }),
+                            editor: CodemaoWorkEditor.NEMO,
                             coverURL: source.preview,
                             previewURL: source.preview,
                             viewTimes: source.view_times,
@@ -199,7 +287,7 @@ export class CodemaoWorkInfo {
                         const source = await getKittenWorkPublicResource(await this.id)
                         return {
                             name: source.name,
-                            type: CodemaoWorkEditor.KITTEN,
+                            editor: CodemaoWorkEditor.KITTEN,
                             publishTime: new Date(source.updated_time * 1000)
                         }
                     })(),
@@ -213,15 +301,18 @@ export class CodemaoWorkInfo {
     }
 
     @enumerable(false)
-    private get kittenNWorkPublicResource(): Promise<KittenNPublicResourceObject> {
-        return (async(): Promise<KittenNPublicResourceObject> => {
+    private get kitten_NWorkPublicResource(): Promise<Kitten_NPublicResourceObject> {
+        return (async(): Promise<Kitten_NPublicResourceObject> => {
             if (this.__kittenNPublicResource == null) {
                 Object.defineProperty(this, "__kittenNPublicResource", {
-                    value: (async (): Promise<KittenNPublicResourceObject> => {
-                        const source = await getKittenNWorkPublicResource(await this.id)
+                    value: (async (): Promise<Kitten_NPublicResourceObject> => {
+                        const source = await getKitten_NWorkPublicResource(await this.id)
                         return {
                             name: source.name,
-                            type: CodemaoWorkEditor.KITTEN_N,
+                            author: new CodemaoUser({
+                                id: parseInt(source.author_id)
+                            }),
+                            editor: CodemaoWorkEditor.KITTEN_N,
                             publishTime: new Date(source.update_time * 1000),
                             previewURL: source.preview_url
                         }
@@ -237,7 +328,8 @@ export class CodemaoWorkInfo {
 
     private __id?: Promise<number>
     private __name?: Promise<string>
-    private __type?: Promise<CodemaoWorkEditor>
+    private __author?: Promise<CodemaoUser>
+    private __editor?: Promise<CodemaoWorkEditor>
     private __description?: Promise<string>
     private __operationInstruction?: Promise<string>
     private __publishTime?: Promise<Date>
@@ -280,7 +372,7 @@ export class CodemaoWorkInfo {
                         Promise.any([
                             this.nemoWorkPublicResource,
                             this.kittenWorkPublicResource,
-                            this.kittenNWorkPublicResource
+                            this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([...error0, ...error1.errors])
                         )
@@ -291,26 +383,55 @@ export class CodemaoWorkInfo {
     }
 
     /**
+     * 作品作者信息。
+     */
+    @enumerable(true)
+    public get author(): Promise<CodemaoUser> {
+        if (this.__author == null) {
+            this.__author = Promise.any([
+                Promise.reject(new Error("没有提供作者信息")),
+                this.workInfo
+                    .catch((error0) =>
+                        this.workDetail.catch((error1) =>
+                            Promise.any([
+                                this.nemoWorkPublicResource,
+                                this.kitten_NWorkPublicResource
+                            ]).catch((error2) =>
+                                Promise.reject([error0, error1, ...error2.errors])
+                            )
+                        )
+                    ).then((info) => info.author)
+            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+        }
+        return this.__author
+    }
+
+    /**
      * 作品使用的编辑器类型，详见 {@link CodemaoWorkEditor}。
      */
     @enumerable(true)
     public get editor(): Promise<CodemaoWorkEditor> {
-        if (this.__type == null) {
-            this.__type = Promise.any([
+        if (this.__editor == null) {
+            this.__editor = Promise.any([
                 Promise.reject(new Error("没有提供类型")),
                 this.workInfo
                     .catch((error0) =>
                         Promise.any([
                             this.nemoWorkPublicResource,
                             this.kittenWorkPublicResource,
-                            this.kittenNWorkPublicResource
+                            this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
-                            Promise.reject([error0, ...error1.errors])
+                            Promise.any([
+                                testWorkEditorByKittenCloud(this, CodemaoWorkEditor.NEMO),
+                                testWorkEditorByKittenCloud(this, CodemaoWorkEditor.KITTEN),
+                                testWorkEditorByKittenCloud(this, CodemaoWorkEditor.KITTENN)
+                            ]).catch(error2 =>
+                                Promise.reject([error0, ...error1.errors, ...error2.errors]))
                         )
-                    ).then((info) => info.type)
+                    ).then((info) => info.editor)
             ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
         }
-        return this.__type
+        return this.__editor
     }
 
     /**
@@ -358,7 +479,7 @@ export class CodemaoWorkInfo {
                     .catch((error0) =>
                         Promise.any([
                             this.kittenWorkPublicResource,
-                            this.kittenNWorkPublicResource
+                            this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([error0, ...error1.errors])
                         )
@@ -437,7 +558,7 @@ export class CodemaoWorkInfo {
                     ).catch((error0) =>
                         Promise.any([
                             this.nemoWorkPublicResource,
-                            this.kittenNWorkPublicResource
+                            this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([...error0, ...error1.errors])
                         )
@@ -568,15 +689,33 @@ export class CodemaoWorkInfo {
         this.setCache(info)
     }
 
-    public setCache(info: CodemaoWorkInfoObject): void {
+    public async setCache(info: CodemaoWorkInfoObject): Promise<void> {
         for (let key in info) {
             let value: typeof info[keyof typeof info] = info[key as keyof typeof info]
             if (value != None) {
-                Object.defineProperty(this, `__${key}`, {
-                    value: Promise.resolve(value),
-                    enumerable: false,
-                    configurable: true
-                })
+                if (value instanceof CodemaoUser) {
+                    if (!("__author" in this)) {
+                        this.__author = Promise.resolve(new CodemaoUser({}))
+                    }
+                    const userInfoObject: CodemaoUserInfoObject = {}
+                    for (const key in value) {
+                        if (`__${key}` in value) {
+                            try {
+                                // @ts-ignore
+                                userInfoObject[key] = await value[`__${key}`]
+                            } catch (error) {
+                                console.error(error)
+                            }
+                        }
+                    }
+                    ;(await this.__author).info.setCache(userInfoObject)
+                } else {
+                    Object.defineProperty(this, `__${key}`, {
+                        value: Promise.resolve(value),
+                        enumerable: false,
+                        configurable: true
+                    })
+                }
             }
         }
     }
