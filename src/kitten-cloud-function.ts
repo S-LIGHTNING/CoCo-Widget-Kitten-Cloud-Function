@@ -38,10 +38,10 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
     }
 
     private static startCatch(): void {
-        let originalWebSocket: typeof WebSocket = new Function("return " + ["Web", "Socket"].join(""))()
-        new Function("webSocket", `
-            webSocket.prototype = ${"Web"}${"Socket"}.prototype;
-            ${"Web"}${"Socket"} = webSocket;
+        let originalWebSocket: typeof WebSocket = WebSocket
+        new Function("newWebSocket", `
+            newWebSocket.prototype = WebSocket.prototype;
+            window.WebSocket = newWebSocket;
         `)(function (url: string | URL): WebSocket {
             let socket: WebSocket = new originalWebSocket(url)
             if (typeof url == "string") {
