@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from "axios"
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import CryptoJS from "crypto-js"
 import { CodemaoUserSex } from "./user/codemao-user-sex"
 import { LOWER_CASE_LETTER, None, NUMBER_CHAR, randomString } from "../utils/other"
@@ -233,7 +233,15 @@ export type KittenNWorkPublicResourceObject = {
 
 async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
     try {
-        const { data } = await axios<T>(argument)
+        const response: AxiosResponse = await axios(argument)
+        let { data } = response
+        if (
+            data != None && typeof data == "object" &&
+            "status" in data && typeof data.status == "number" &&
+            "text" in data && typeof data.text == "string"
+        ) {
+            data = JSON.parse(data.text)
+        }
         if (
             data != None && typeof data == "object" &&
             "code" in data && typeof data.code == "number" &&
@@ -241,16 +249,13 @@ async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
             "data" in data
         ) {
             if (data.code != 200) {
-                const error = new Error()
-                Object.assign(error, {
-                    request: argument,
-                    response: {
-                        status: data.code,
-                        statusText: "未知错误",
-                        data: data
-                    }
-                })
-                throw error
+                throw new axios.AxiosError(
+                    data.msg,
+                    data.code.toString(),
+                    response.config,
+                    response.request,
+                    response
+                )
             }
             return data.data as T
         }
@@ -266,14 +271,14 @@ async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
             } else if (response == None) {
                 throw new Error("请求已发出，但未收到响应")
             } else {
-                const { status, data } = response
+                const { statusText, data } = response
                 if (!(
                     typeof data == "object" &&
                     ("error_message" in data || "error" in data || "msg" in data)
                 )) {
-                    throw new Error(status.toString())
+                    throw new Error(statusText)
                 }
-                throw new Error(`${status}，${data.error_message ?? data.error ?? data.msg}`)
+                throw new Error(`${statusText}，${data.error_message ?? data.error ?? data.msg}`)
             }
         } catch (error) {
             if (!(error instanceof Error)) {
