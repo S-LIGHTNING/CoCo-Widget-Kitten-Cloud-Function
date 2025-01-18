@@ -6,6 +6,8 @@
         "declarationDir": "dist/types",
         "module": "ESNext",
         "moduleResolution": "bundler",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
         "lib": ["ESNext", "DOM"],
         "skipLibCheck": true,
         "checkJs": true,

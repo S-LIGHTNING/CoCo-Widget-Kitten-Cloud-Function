@@ -1,4 +1,4 @@
-import * as __KittenCloudFunction from "./kitten-cloud-function-npm-package"
+import * as __KittenCloudFunction from "./kitten-cloud-function-package"
 
 declare global {
     var KittenCloudFunction: typeof __KittenCloudFunction

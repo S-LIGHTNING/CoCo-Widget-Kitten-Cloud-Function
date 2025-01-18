@@ -47,7 +47,7 @@
         "build:coco-widget--no-modification-restriction": "webpack --config coco-widget.webpack.config.js --env noModificationRestriction",
         "build:browser": "webpack --config browser.webpack.config.js",
         "build:user-script": "webpack --config user-script.webpack.config.js",
-        "build:package": "tsc",
+        "build:package": "tsc --module commonjs --moduleResolution node",
         "build:docs": "typedoc --sort static-first --sort source-order --plugin typedoc-material-theme",
         "build": "npm run build:coco-widget && npm run build:coco-widget--no-modification-restriction && npm run build:browser && npm run build:user-script && npm run build:package && npm run build:docs"
     },
@@ -70,5 +70,8 @@
         "typedoc-material-theme": "^1.1.0",
         "webpack": "^5.93.0",
         "webpack-cli": "^5.1.4"
+    },
+    "engines": {
+        "node": ">=14"
     }
 }
