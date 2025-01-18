@@ -40,10 +40,13 @@ module.exports = function (env, argv) {
             extensions: globalConfig.resolve.extensions
         },
         externalsType: SCW.externalsType,
-        externals: SCW.externals,
+        externals: {
+            ...globalConfig.externals,
+            ...SCW.externals
+        },
         plugins: [
-            ...SCW.plugins,
             ...globalConfig.plugins,
+            ...SCW.plugins,
             new webpack.BannerPlugin({
                 banner: comments.map(line => `// ${line}\n`).join(""),
                 raw: true,
