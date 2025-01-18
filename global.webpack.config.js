@@ -1,9 +1,13 @@
+const webpack = require("webpack")
 const path = require("path")
 const TerserPlugin = require("terser-webpack-plugin")
 
 module.exports = function (env, argv) {
+    /** @type {webpack.Configuration["mode"]} */
+    const mode = "production"
     const config = {
-        mode: "development",
+        mode: mode,
+        /** @type {webpack.Configuration["stats"]} */
         stats: "minimal",
         /**
          * @param {{ [x: string]: string }} entry
@@ -13,16 +17,10 @@ module.exports = function (env, argv) {
             /** @type {{ [x: string]: string }} */
             const newEntry = {}
             for (const name in entry) {
-                if (env.transform) {
-                    if (config.mode == "production") {
-                        newEntry[name.replace(/(?=\.[a-z]+$)/, ".transformed")] = entry[name]
-                        newEntry[name.replace(/(?=\.[a-z]+$)/, ".transformed.min")] = entry[name]
-                    }
-                } else {
-                    newEntry[name] = entry[name]
-                    if (config.mode == "production") {
-                        newEntry[name.replace(/(?=\.[a-z]+$)/, ".min")] = entry[name]
-                    }
+                newEntry[name] = entry[name]
+                // @ts-ignore
+                if (mode == "production") {
+                    newEntry[name.replace(/(?=\.[a-z]+$)/, ".min")] = entry[name]
                 }
             }
             return newEntry
@@ -40,7 +38,11 @@ module.exports = function (env, argv) {
                     include: /\.min\./,
                     terserOptions: {
                         format: {
-                            comments: false
+                            // @ts-ignore
+                            comments: new Function(
+                                "node", "comment",
+                                `return ${JSON.stringify(env.comments)}.filter(item => comment.value.includes(item)).length != 0`
+                            )
                         }
                     },
                     extractComments: false
@@ -58,15 +60,10 @@ module.exports = function (env, argv) {
         resolve: {
             extensions: [".ts", ".tsx", ".js", ".jsx"]
         },
+        /** @type {webpack.Configuration["externalsType"]} */
         externalsType: "var",
         externals: {},
         plugins: []
-    }
-    if (env.transform) {
-        config.module.rules.unshift({
-            test: /\.(j|t)sx?$/,
-            use: "babel-loader"
-        })
     }
     return config
 }

@@ -9,7 +9,7 @@
 
 ### 1.简介
 
-源码云功能是针对编程猫源码云功能（云变量、云列表等）的客户端工具，提供了 CoCo 控件、窜改猴库、（开发中）窜改猴用户脚本这三种使用方式。
+源码云功能是针对编程猫源码云功能（云变量、云列表等）的客户端工具，提供了 CoCo 控件、（开发中）用户脚本这两种使用方式。
 
 ### 2.主要功能
 
@@ -25,8 +25,7 @@
 ## 二、快速开始
 
 [CoCo 控件版](#coco-控件版)
-[窜改猴库版](#窜改猴库版)
-[窜改猴用户脚本版（开发中）](#窜改猴用户脚本版)
+[用户脚本版（开发中）](#用户脚本版)
 
 ### CoCo 控件版
 
@@ -52,102 +51,7 @@
 
 该操作与源码编辑器的操作类似，在此不再赘述。
 
-### 窜改猴库版
-
-#### 1.安装 Tampermonkey
-
-点击 [这里](https://www.tampermonkey.net/) 下载安装 Tampermonkey 浏览器插件。
-
-#### 2.添加依赖库
-
-在你的脚本元属性加入：<span style="word-wrap: break-word;">`// @require https://update.greasyfork.org/scripts/502406/1420791/编程猫源码云功能.js`</span>。
-
-#### 3.检测用户登陆状态
-
-可以通过尝试获取用户信息来检测用户是否已登录。
-
-```JavaScript
-try {
-    await coco.user.info.id
-    console.log("用户已登录")
-} catch(error) {
-    console.log("用户未登录")
-}
-```
-
-#### 4.创建连接
-
-```JavaScript
-let connection = new KittenCloudFunction(114514)
-```
-
-#### 5.查看和修改云数据
-
-##### ①获取云数据实例
-
-```JavaScript
-let connection = new KittenCloudFunction(114514)
-
-// 快速获取云数据实例，不推荐使用
-let data = await connection.get("云数据")
-
-// 按照类型获取云数据实例
-let privateVariable = await connection.privateVariable.get("私有云变量")
-let publicVariable = await connection.publicVariable.get("公有云变量")
-let list = await connection.list.get("云列表")
-```
-
-##### ②查看和修改云变量
-
-```JavaScript
-let connection = new KittenCloudFunction(114514)
-let variable = await connection.publicVariable.get("云变量")
-
-// 读取云变量的值
-console.log(variable.get())
-
-// 修改云变量的值
-variable.set("好耶")
-```
-
-##### ③查看私有云变量排行榜
-
-```JavaScript
-let connection = new KittenCloudFunction(114514)
-let privateVariable = await connection.privateVariable.get("私有云变量")
-
-// 获取私有云变量排行榜逆序排列的前 31 名用户
-let rankList = await privateVariable.getRankingList(31, -1)
-for (const item of rankList) {
-    console.log(item.value, await item.user.info.nickname)
-}
-```
-##### ④查看和修改云列表
-
-```JavaScript
-let connection = new KittenCloudFunction(114514)
-let list = await connection.list.get("云列表")
-
-// 获取云列表第 1 项，列表索引从 0 开始
-console.log(list.get(1))
-
-// 修改云列表第 1 项
-list.replace(1, "好耶")
-
-// 添加云列表第 10 项
-list.add(10, "好耶")
-
-// 删除云列表第 1 项
-list.remove(1)
-```
-
-更多云列表操作请参考[源码云功能 API 文档](https://s-lightning.github.io/Kitten-Cloud-Function/classes/module_cloud_data_kitten_cloud_list.KittenCloudList.html)。
-
-#### 6.更多功能
-
-请参考[源码云功能 API 文档](https://s-lightning.github.io/Kitten-Cloud-Function/hierarchy.html)。
-
-### 窜改猴用户脚本版
+### 用户脚本版
 
 正在开发中……
 

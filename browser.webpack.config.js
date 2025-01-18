@@ -3,8 +3,17 @@ const global = require("./global.webpack.config")
 
 const { project } = require("./project")
 
+/**
+ * @returns {webpack.Configuration}
+ */
 module.exports = function (env, argv) {
-    const globalConfig = global(env, argv)
+    const comments = [
+        "@name " + project.name,
+        "@author " + project.author,
+        "@version " + project.version,
+        "@license " + project.license
+    ]
+    const globalConfig = global({ ...env, comments }, argv)
     return {
         mode: globalConfig.mode,
         stats: globalConfig.stats,
@@ -26,12 +35,7 @@ module.exports = function (env, argv) {
         plugins: [
             ...globalConfig.plugins,
             new webpack.BannerPlugin({
-                banner: "/**" + "\n" + [
-                    "@name " + project.name,
-                    "@author " + project.author,
-                    "@version " + project.version,
-                    "@license " + project.license
-                ].map(line => ` * ${line}\n`).join("") + " */" + "\n",
+                banner: "/**" + "\n" + comments.map(line => ` * ${line}\n`).join("") + " */" + "\n",
                 raw: true,
                 entryOnly: true
             })

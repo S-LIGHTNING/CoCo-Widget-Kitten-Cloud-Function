@@ -1,6 +1,5 @@
 const webpack = require("webpack")
 const global = require("./global.webpack.config")
-const SCW = require("slightning-coco-widget--webpack")
 
 const { project } = require("./project")
 
@@ -9,48 +8,40 @@ const { project } = require("./project")
  */
 module.exports = function (env, argv) {
     const comments = [
-        "==CoCoWidget==",
-        "@name " + project.name,
+        "==UserScript==",
+        "@name 编程猫源码云数据编辑器",
+        "@namespace https://s-lightning.github.io/",
         "@author " + project.author,
-        "@version " + project.version,
+        "@version 1.0.0",
+        "@description 基于源码云功能客户端编写的用户脚本，可以查看和修改编程猫已发布的源码作品的云变量和云列表",
+        "@icon https://cdn-community.codemao.cn/community_frontend/asset/icon_kitten4_bd2e0.png",
         "@license " + project.license,
-        "==/CoCoWidget=="
+        "==/UserScript=="
     ]
-    const globalConfig = global({
-        ...env,
-        comments: [
-            ...comments,
-            "This CoCo Widget uses SLIGHTNING CoCo Widget Framework."
-        ]
-    }, argv)
+    const globalConfig = global({ ...env, comments }, argv)
     return {
         mode: globalConfig.mode,
         stats: globalConfig.stats,
         entry: globalConfig.entry({
-            [project.name + "（编程猫 CoCo 控件版）" + (env.noModificationRestriction ? "" : "（修改受限版）") + ".js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
+            [project.name + "（用户脚本版）" + ".js"]: "./src/wrapper/kitten-cloud-function-user-script.ts"
         }),
         output: globalConfig.output,
         optimization: globalConfig.optimization,
         module: {
             rules: [
-                ...globalConfig.module.rules, ...SCW.loaders
+                ...globalConfig.module.rules
             ]
         },
         resolve: {
             extensions: globalConfig.resolve.extensions
         },
-        externalsType: SCW.externalsType,
-        externals: SCW.externals,
         plugins: [
-            ...SCW.plugins,
             ...globalConfig.plugins,
             new webpack.BannerPlugin({
                 banner: comments.map(line => `// ${line}\n`).join(""),
                 raw: true,
+                test: /（用户脚本版）\.js$/,
                 entryOnly: true
-            }),
-            new webpack.DefinePlugin({
-                "KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED": !env.noModificationRestriction
             })
         ]
     }

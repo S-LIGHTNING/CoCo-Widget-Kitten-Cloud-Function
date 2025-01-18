@@ -1,6 +1,6 @@
 {
     "name": "kitten-cloud-function",
-    "version": "1.1.1-alpha.1",
+    "version": "1.1.1-alpha.2",
     "description": "用于编程猫源码云功能（云变量、云列表等）的客户端工具",
     "main": "./dist/src/src/wrapper/kitten-cloud-function-npm-package.js",
     "types": "./dist/types/src/wrapper/kitten-cloud-function-npm-package.d.ts",
@@ -45,11 +45,11 @@
     "scripts": {
         "build:coco-widget": "webpack --config coco-widget.webpack.config.js",
         "build:coco-widget--no-modification-restriction": "webpack --config coco-widget.webpack.config.js --env noModificationRestriction",
-        "build:browser": "webpack --config browser.webpack.config.js && webpack --config browser.webpack.config.js --env transform",
-        "build:tampermonkey": "webpack --config tampermonkey.webpack.config.js && webpack --config tampermonkey.webpack.config.js --env transform",
+        "build:browser": "webpack --config browser.webpack.config.js",
+        "build:user-script": "webpack --config user-script.webpack.config.js",
         "build:package": "tsc",
         "build:docs": "typedoc --sort static-first --sort source-order --plugin typedoc-material-theme",
-        "build": "npm run build:coco-widget && npm run build:coco-widget--no-modification-restriction && npm run build:browser && npm run build:tampermonkey && npm run build:package && npm run build:docs"
+        "build": "npm run build:coco-widget && npm run build:coco-widget--no-modification-restriction && npm run build:browser && npm run build:user-script && npm run build:package && npm run build:docs"
     },
     "dependencies": {
         "@types/diff": "^5.2.1",
@@ -57,7 +57,7 @@
         "commander": "^12.1.0",
         "crypto-js": "^4.2.0",
         "diff": "^5.2.0",
-        "slightning-coco-widget": "1.0.1-alpha.4"
+        "slightning-coco-widget": "1.0.1-alpha.5"
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",

@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
-import CryptoJS from "crypto-js"
+import SHA256 from "crypto-js/sha256"
 import { CodemaoUserSex } from "./user/codemao-user-sex"
 import { LOWER_CASE_LETTER, None, NUMBER_CHAR, randomString } from "../utils/other"
 
@@ -334,7 +334,7 @@ export async function setXCreationToolsDeviceAuth(argument: AxiosRequestConfig):
     let clientID: string = getClientID()
     argument.headers ??= {}
     argument.headers["X-Creation-Tools-Device-Auth"] = JSON.stringify({
-        sign: CryptoJS.SHA256("pBlYqXbJDu" + timestamp + clientID).toString().toLocaleUpperCase(),
+        sign: SHA256("pBlYqXbJDu" + timestamp + clientID).toString().toLocaleUpperCase(),
         timestamp,
         client_id: clientID
     })
