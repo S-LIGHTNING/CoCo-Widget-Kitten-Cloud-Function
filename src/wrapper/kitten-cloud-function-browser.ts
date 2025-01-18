@@ -1,9 +1,7 @@
-import * as KittenCloudFunction from "./kitten-cloud-function-npm-package"
+import * as __KittenCloudFunction from "./kitten-cloud-function-npm-package"
 
 declare global {
-    interface Window {
-        KittenCloudFunction: typeof KittenCloudFunction
-    }
+    var KittenCloudFunction: typeof __KittenCloudFunction
 }
 
-window.KittenCloudFunction = KittenCloudFunction
+globalThis.KittenCloudFunction = __KittenCloudFunction
