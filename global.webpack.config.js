@@ -63,39 +63,11 @@ module.exports = function (env, argv) {
         /** @type {webpack.Configuration["externalsType"]} */
         externalsType: "var",
         externals: {
-            "axios": "axios"
+            "axios": "axios",
+            "diff": "diff",
+            "crypto-js": "crypto-js"
         },
-        plugins: [
-            new webpack.BannerPlugin({
-                banner: `
-                    var __axios
-                    var axios = ${(async function () {
-                        // @ts-ignore
-                        if (__axios == null) {
-                            const code = await (await fetch(
-                                "https://cdn.jsdelivr.net/npm/axios@latest/dist/axios.min.js"
-                            )).text()
-                            const exports = {}, module = { exports }
-                            new Function("exports", "module", code)(exports, module)
-                            // @ts-ignore
-                            __axios = module.exports
-                        }
-                        // @ts-ignore
-                        return __axios.apply(this, arguments)
-                    }).toString()};
-                    axios.isAxiosError = ${(function () {
-                        // @ts-ignore
-                        if (typeof __axios == "undefined") {
-                            throw new Error("Axios 未加载！")
-                        }
-                        // @ts-ignore
-                        return __axios.isAxiosError.apply(this, arguments)
-                    }).toString()};
-                `,
-                raw: true,
-                entryOnly: true
-            })
-        ]
+        plugins: []
     }
     return config
 }

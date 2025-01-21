@@ -1,5 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
-import SHA256 from "crypto-js/sha256"
+import { AxiosRequestConfig, AxiosResponse } from "axios"
 import { CodemaoUserSex } from "./user/codemao-user-sex"
 import { LOWER_CASE_LETTER, None, NUMBER_CHAR, randomString } from "../utils/other"
 
@@ -232,8 +231,9 @@ export type KittenNWorkPublicResourceObject = {
 }
 
 async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
+    const axios = await import("axios")
     try {
-        const response: AxiosResponse = await axios(argument)
+        const response: AxiosResponse = await axios.default(argument)
         let { data } = response
         if (
             data != None && typeof data == "object" &&
@@ -278,7 +278,7 @@ async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
                 )) {
                     throw new Error(statusText)
                 }
-                throw new Error(`${statusText}，${data.error_message ?? data.error ?? data.msg}`)
+                throw new Error(data.error_message ?? data.error ?? data.msg ?? statusText)
             }
         } catch (error) {
             if (!(error instanceof Error)) {
@@ -334,7 +334,7 @@ export async function setXCreationToolsDeviceAuth(argument: AxiosRequestConfig):
     let clientID: string = getClientID()
     argument.headers ??= {}
     argument.headers["X-Creation-Tools-Device-Auth"] = JSON.stringify({
-        sign: SHA256("pBlYqXbJDu" + timestamp + clientID).toString().toLocaleUpperCase(),
+        sign: (await import("crypto-js")).SHA256("pBlYqXbJDu" + timestamp + clientID).toString().toLocaleUpperCase(),
         timestamp,
         client_id: clientID
     })

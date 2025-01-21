@@ -1,4 +1,4 @@
-import { KittenCloudFunction } from "../../kitten-cloud-function"
+import { __diff, KittenCloudFunction } from "../../kitten-cloud-function"
 import { None } from "../../utils/other"
 import { Signal } from "../../utils/signal"
 import { KittenCloudListGroup } from "./group/kitten-cloud-list-group"
@@ -14,7 +14,7 @@ import { KittenCloudListUnshiftCommand } from "./update/command/kitten-cloud-lis
 import { KittenCloudListUpdateCommand } from "./update/command/kitten-cloud-list-update-command"
 import { KittenCloudDataUpdateSource } from "./update/kitten-cloud-data-update-source"
 
-import { ArrayChange, diffArrays } from "diff"
+import { ArrayChange } from "diff"
 
 /**
  * 云列表项的值的类型。
@@ -181,7 +181,10 @@ export class KittenCloudList extends KittenCloudData {
     private compareTo(
         this: this, source: KittenCloudDataUpdateSource, value: KittenCloudListItemValue[]
     ): KittenCloudListUpdateCommand[] {
-        const diff: ArrayChange<KittenCloudListItemValue>[] = diffArrays(this.value, value)
+        if (__diff == null) {
+            throw new Error("diff 未导入")
+        }
+        const diff: ArrayChange<KittenCloudListItemValue>[] = __diff.diffArrays(this.value, value)
         let position: number = 0
         const result: KittenCloudListUpdateCommand[] = []
         for (const change of diff) {

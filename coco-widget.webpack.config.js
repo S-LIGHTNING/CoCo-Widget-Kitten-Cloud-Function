@@ -4,6 +4,22 @@ const SCW = require("slightning-coco-widget--webpack")
 
 const { project } = require("./project")
 
+SCW.addExternalImport({
+    name: "axios",
+    source: "https://cdn.jsdelivr.net/npm/axios@^1.7.9/dist/axios.min.js"
+})
+
+SCW.addExternalImport({
+    name: "diff",
+    source: "https://cdn.jsdelivr.net/npm/diff@^5.2.0/dist/diff.min.js"
+})
+
+SCW.addExternalImport({
+    name: "crypto-js",
+    source: "crypto-js",
+    importer: SCW.importFromCoCo
+})
+
 /**
  * @returns {webpack.Configuration}
  */
@@ -33,7 +49,8 @@ module.exports = function (env, argv) {
         optimization: globalConfig.optimization,
         module: {
             rules: [
-                ...globalConfig.module.rules, ...SCW.loaders
+                ...SCW.loaders,
+                ...globalConfig.module.rules
             ]
         },
         resolve: {
