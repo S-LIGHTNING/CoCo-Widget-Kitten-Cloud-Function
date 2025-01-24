@@ -284,7 +284,7 @@ async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
             if (!(error instanceof Error)) {
                 throw error
             }
-            throw new Error(`${argument.method} ${argument.url} 失败：${error.message}`)
+            throw new Error(`HTTP 请求 ${argument.method} ${argument.url} 失败：${error.message}`)
         }
     }
 }

@@ -882,14 +882,16 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     private async checkModifiable(this: this): Promise<void> {
         if (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED) {
             let expectedWorkAuthorID: number | None = None
-            const thisWorkID: number = parseInt(location.pathname.split("/").pop() ?? "")
-            if (!Number.isNaN(thisWorkID)) {
-                expectedWorkAuthorID = await (await new CodemaoWork({ id: thisWorkID }).info.author).info.id
-            } else if (!Number.isNaN(parseInt(new URLSearchParams(location.hash.slice(1)).get("id") ?? ""))) {
+            if (location.pathname == "/editor/editor-player.html") {
                 expectedWorkAuthorID = await KittenCloudFunction.user.info.id
+            } else {
+                const thisWorkID: number = parseInt(location.pathname.split("/").pop() ?? "")
+                if (!Number.isNaN(thisWorkID)) {
+                    expectedWorkAuthorID = await (await new CodemaoWork({ id: thisWorkID }).info.author).info.id
+                }
             }
             if (expectedWorkAuthorID == None) {
-                return
+                throw new Error(`当前版本为修改受限版版，只能修改自己作品的云数据，但是源码云功能无法验证你的身份`)
             }
             if (await (await this.getConnection().work.info.author).info.id != expectedWorkAuthorID) {
                 throw new Error(`当前版本为修改受限版版，只能修改自己作品的云数据，而 ${await this.getConnection().work.info.name} 不是你的作品`)

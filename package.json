@@ -1,6 +1,6 @@
 {
     "name": "kitten-cloud-function",
-    "version": "1.1.1-alpha.2",
+    "version": "1.1.1-alpha.3",
     "description": "用于编程猫源码云功能（云变量、云列表等）的客户端工具",
     "main": "./dist/src/src/wrapper/kitten-cloud-function-npm-package.js",
     "types": "./dist/types/src/wrapper/kitten-cloud-function-npm-package.d.ts",
@@ -52,17 +52,18 @@
         "build": "npm run build:coco-widget && npm run build:coco-widget--no-modification-restriction && npm run build:browser && npm run build:user-script && npm run build:package && npm run build:docs"
     },
     "dependencies": {
-        "@types/diff": "^5.2.1",
+        "@ungap/promise-any": "^1.1.1",
         "axios": "^1.7.2",
         "commander": "^12.1.0",
         "crypto-js": "^4.2.0",
         "diff": "^5.2.0",
-        "slightning-coco-widget": "1.0.1-alpha.5"
+        "slightning-coco-widget": "1.0.1-alpha.11"
     },
     "devDependencies": {
-        "@babel/core": "^7.25.2",
-        "@babel/preset-env": "^7.25.3",
-        "babel-loader": "^9.1.3",
+        "@babel/core": "^7.26.0",
+        "@babel/preset-env": "^7.26.0",
+        "@types/diff": "^7.0.0",
+        "babel-loader": "^9.2.1",
         "slightning-coco-widget--webpack": "1.0.2-alpha.4",
         "terser-webpack-plugin": "^5.3.10",
         "ts-loader": "^9.5.1",

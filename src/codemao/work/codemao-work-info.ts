@@ -1,3 +1,5 @@
+import Promise_any from "@ungap/promise-any"
+
 import { enumerable, None } from "../../utils/other"
 import { getKittenNWorkPublicResource as getKitten_NWorkPublicResource, getKittenWorkPublicResource, getNemoWorkPublicResource, getWorkDetail, getWorkInfo } from "../codemao-community-api"
 import { CodemaoUser } from "../user/codemao-user"
@@ -89,7 +91,7 @@ async function testWorkEditorByKittenCloud(
         [CodemaoWorkEditor.KITTEN_N.symbol]: {
             authorization_type: 5,
             stag: 3,
-            token: "",
+            token: "获取失败",
             EIO: 3,
             transport: "websocket"
         },
@@ -350,7 +352,7 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get id(): Promise<number> {
         if (this.__id == null) {
-            this.__id = Promise.reject(new Error("没有提供ID"))
+            this.__id = Promise.reject(["获取作品ID失败", new Error("没有提供作品ID")])
         }
         return this.__id
     }
@@ -361,15 +363,15 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get name(): Promise<string> {
         if (this.__name == null) {
-            this.__name = Promise.any([
-                Promise.reject(new Error("没有提供名称")),
+            this.__name = Promise_any([
+                Promise.reject(new Error("没有提供作品名称")),
                 this.workInfo
                     .catch((getWorkInfoError) =>
                         this.workDetail.catch((getWorkDetailError) =>
                             Promise.reject([getWorkInfoError, getWorkDetailError])
                         )
                     ).catch((error0) =>
-                        Promise.any([
+                        Promise_any([
                             this.nemoWorkPublicResource,
                             this.kittenWorkPublicResource,
                             this.kitten_NWorkPublicResource
@@ -377,23 +379,23 @@ export class CodemaoWorkInfo {
                             Promise.reject([...error0, ...error1.errors])
                         )
                     ).then((info) => info.name)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品名称失败", errors[0], ...errors[1]]))
         }
         return this.__name
     }
 
     /**
-     * 作品作者信息。
+     * 作品作者。
      */
     @enumerable(true)
     public get author(): Promise<CodemaoUser> {
         if (this.__author == null) {
-            this.__author = Promise.any([
-                Promise.reject(new Error("没有提供作者信息")),
+            this.__author = Promise_any([
+                Promise.reject(new Error("没有提供作品作者")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
-                            Promise.any([
+                            Promise_any([
                                 this.nemoWorkPublicResource,
                                 this.kitten_NWorkPublicResource
                             ]).catch((error2) =>
@@ -401,7 +403,7 @@ export class CodemaoWorkInfo {
                             )
                         )
                     ).then((info) => info.author)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品作者失败", errors[0], ...errors[1]]))
         }
         return this.__author
     }
@@ -412,16 +414,16 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get editor(): Promise<CodemaoWorkEditor> {
         if (this.__editor == null) {
-            this.__editor = Promise.any([
-                Promise.reject(new Error("没有提供类型")),
+            this.__editor = Promise_any([
+                Promise.reject(new Error("没有提供作品类型")),
                 this.workInfo
                     .catch((error0) =>
-                        Promise.any([
+                        Promise_any([
                             this.nemoWorkPublicResource,
                             this.kittenWorkPublicResource,
                             this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
-                            Promise.any([
+                            Promise_any([
                                 testWorkEditorByKittenCloud(this, CodemaoWorkEditor.NEMO),
                                 testWorkEditorByKittenCloud(this, CodemaoWorkEditor.KITTEN),
                                 testWorkEditorByKittenCloud(this, CodemaoWorkEditor.KITTENN)
@@ -429,7 +431,7 @@ export class CodemaoWorkInfo {
                                 Promise.reject([error0, ...error1.errors, ...error2.errors]))
                         )
                     ).then((info) => info.editor)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品类型失败", errors[0], ...errors[1]]))
         }
         return this.__editor
     }
@@ -440,15 +442,15 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get description(): Promise<string> {
         if (this.__description == null) {
-            this.__description = Promise.any([
-                Promise.reject(new Error("没有提供描述")),
+            this.__description = Promise_any([
+                Promise.reject(new Error("没有提供作品描述")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
                             Promise.reject([error0, error1])
                         )
                     ).then((info) => info.description)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品描述失败", errors[0], ...errors[1]]))
         }
         return this.__description
     }
@@ -459,10 +461,10 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get operationInstruction(): Promise<string> {
         if (this.__operationInstruction == null) {
-            this.__operationInstruction = Promise.any([
-                Promise.reject(new Error("没有提供操作说明")),
+            this.__operationInstruction = Promise_any([
+                Promise.reject(new Error("没有提供作品操作说明")),
                 this.workInfo.then((info) => info.operationInstruction)
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取作品操作说明失败", ...errors]))
         }
         return this.__operationInstruction
     }
@@ -473,18 +475,18 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get publishTime(): Promise<Date> {
         if (this.__publishTime == null) {
-            this.__publishTime = Promise.any([
-                Promise.reject(new Error("没有提供发布时间")),
+            this.__publishTime = Promise_any([
+                Promise.reject(new Error("没有提供作品发布时间")),
                 this.workInfo
                     .catch((error0) =>
-                        Promise.any([
+                        Promise_any([
                             this.kittenWorkPublicResource,
                             this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([error0, ...error1.errors])
                         )
                     ).then((info) => info.publishTime)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品发布时间失败", errors[0], ...errors[1]]))
         }
         return this.__publishTime
     }
@@ -495,10 +497,10 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get playerURL(): Promise<string> {
         if (this.__playerURL == null) {
-            this.__playerURL = Promise.any([
-                Promise.reject(new Error("没有提供运行器地址")),
+            this.__playerURL = Promise_any([
+                Promise.reject(new Error("没有提供作品运行器地址")),
                 this.workInfo.then((info) => info.playerURL)
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取作品运行器地址失败", ...errors]))
         }
         return this.__playerURL
     }
@@ -509,15 +511,15 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get shareURL(): Promise<string> {
         if (this.__shareURL == null) {
-            this.__shareURL = Promise.any([
-                Promise.reject(new Error("没有提供分享地址")),
+            this.__shareURL = Promise_any([
+                Promise.reject(new Error("没有提供作品分享地址")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
                             Promise.reject([error0, error1])
                         )
                     ).then((info) => info.shareURL)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品分享地址失败", errors[0], ...errors[1]]))
         }
         return this.__shareURL
     }
@@ -528,8 +530,8 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get coverURL(): Promise<string> {
         if (this.__coverURL == null) {
-            this.__coverURL = Promise.any([
-                Promise.reject(new Error("没有提供封面地址")),
+            this.__coverURL = Promise_any([
+                Promise.reject(new Error("没有提供作品封面地址")),
                 this.workInfo
                     .catch((error0) =>
                         this.nemoWorkPublicResource
@@ -537,7 +539,7 @@ export class CodemaoWorkInfo {
                                 Promise.reject([error0, error1])
                             )
                     ).then((info) => info.coverURL)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品封面地址失败", errors[0], ...errors[1]]))
         }
         return this.__coverURL
     }
@@ -548,22 +550,22 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get previewURL(): Promise<string> {
         if (this.__previewURL == null) {
-            this.__previewURL = Promise.any([
-                Promise.reject(new Error("没有提供预览地址")),
+            this.__previewURL = Promise_any([
+                Promise.reject(new Error("没有提供作品预览地址")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
                             Promise.reject([error0, error1])
                         )
                     ).catch((error0) =>
-                        Promise.any([
+                        Promise_any([
                             this.nemoWorkPublicResource,
                             this.kitten_NWorkPublicResource
                         ]).catch((error1) =>
                             Promise.reject([...error0, ...error1.errors])
                         )
                     ).then((info) => info.previewURL)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品预览地址失败", errors[0], ...errors[1]]))
         }
         return this.__previewURL
     }
@@ -574,8 +576,8 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get viewTimes(): Promise<number> {
         if (this.__viewTimes == null) {
-            this.__viewTimes = Promise.any([
-                Promise.reject(new Error("没有提供浏览次数")),
+            this.__viewTimes = Promise_any([
+                Promise.reject(new Error("没有提供作品浏览次数")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
@@ -587,7 +589,7 @@ export class CodemaoWorkInfo {
                                 Promise.reject([...error0, error1])
                             )
                     ).then((info) => info.viewTimes)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品浏览次数失败", errors[0], ...errors[1]]))
         }
         return this.__viewTimes
     }
@@ -598,8 +600,8 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get likeTimes(): Promise<number> {
         if (this.__likeTimes == null) {
-            this.__likeTimes = Promise.any([
-                Promise.reject(new Error("没有提供点赞次数")),
+            this.__likeTimes = Promise_any([
+                Promise.reject(new Error("没有提供作品点赞次数")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
@@ -611,7 +613,7 @@ export class CodemaoWorkInfo {
                                 Promise.reject([...error0, error1])
                             )
                     ).then((info) => info.likeTimes)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品点赞次数失败", errors[0], ...errors[1]]))
         }
         return this.__likeTimes
     }
@@ -622,15 +624,15 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get collectTimes(): Promise<number> {
         if (this.__collectTimes == null) {
-            this.__collectTimes = Promise.any([
-                Promise.reject(new Error("没有提供收藏次数")),
+            this.__collectTimes = Promise_any([
+                Promise.reject(new Error("没有提供作品收藏次数")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
                             Promise.reject([error0, error1])
                         )
                     ).then((info) => info.collectTimes)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品收藏次数失败", errors[0], ...errors[1]]))
         }
         return this.__collectTimes
     }
@@ -641,10 +643,10 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get shareTimes(): Promise<number> {
         if (this.__shareTimes == null) {
-            this.__shareTimes = Promise.any([
-                Promise.reject(new Error("没有提供分享次数")),
+            this.__shareTimes = Promise_any([
+                Promise.reject(new Error("没有提供作品分享次数")),
                 this.workInfo.then((info) => info.shareTimes)
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取作品分享次数失败", ...errors]))
         }
         return this.__shareTimes
     }
@@ -655,10 +657,10 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get commentTimes(): Promise<number> {
         if (this.__commentTimes == null) {
-            this.__commentTimes = Promise.any([
-                Promise.reject(new Error("没有提供评论次数")),
+            this.__commentTimes = Promise_any([
+                Promise.reject(new Error("没有提供作品评论次数")),
                 this.workInfo.then((info) => info.commentTimes)
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取作品分享次数失败", ...errors]))
         }
         return this.__commentTimes
     }
@@ -669,15 +671,15 @@ export class CodemaoWorkInfo {
     @enumerable(true)
     public get openResource(): Promise<boolean> {
         if (this.__openResource == null) {
-            this.__openResource = Promise.any([
-                Promise.reject(new Error("没有提供开源状态")),
+            this.__openResource = Promise_any([
+                Promise.reject(new Error("没有提供作品开源状态")),
                 this.workInfo
                     .catch((error0) =>
                         this.workDetail.catch((error1) =>
                             Promise.reject([error0, error1])
                         )
                     ).then((info) => info.openResource)
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取作品分享次数失败", errors[0], ...errors[1]]))
         }
         return this.__openResource
     }

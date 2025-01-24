@@ -1,3 +1,5 @@
+import Promise_any from "@ungap/promise-any"
+
 import { enumerable, None } from "../../utils/other"
 import { getThisUserDetail, getUserProfile, getUserDetail, getUserHonor } from "../codemao-community-api"
 import { CodemaoUserSex } from "./codemao-user-sex"
@@ -251,13 +253,13 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get id(): Promise<number> {
         if (this.__id == None) {
-            this.__id = Promise.any([
-                Promise.reject(new Error("没有提供ID")),
+            this.__id = Promise_any([
+                Promise.reject(new Error("没有提供用户ID")),
                 this.profile
                    .catch((error0) =>
                         this.thisDetail.catch((error1) => Promise.reject([error0, error1])))
                    .then((info) => info.id),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户ID失败", errors[0], ...errors[1]]))
         }
         return this.__id
     }
@@ -268,10 +270,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get username(): Promise<string> {
         if (this.__username == None) {
-            this.__username = Promise.any([
+            this.__username = Promise_any([
                 Promise.reject(new Error("没有提供用户名")),
                 this.thisDetail.then((info) => info.username),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户名失败", ...errors]))
         }
         return this.__username
     }
@@ -282,8 +284,8 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get nickname(): Promise<string> {
         if (this.__nickname == None) {
-            this.__nickname = Promise.any([
-                Promise.reject(new Error("没有提供昵称")),
+            this.__nickname = Promise_any([
+                Promise.reject(new Error("没有提供用户昵称")),
                 this.profile
                    .catch((error0) =>
                         this.thisDetail.catch((error1) =>
@@ -291,7 +293,7 @@ export class CodemaoUserInfo {
                                 this.honor.catch((error3) =>
                                     Promise.reject([error0, error1, error2, error3])))))
                    .then((info) => info.nickname),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户昵称失败", errors[0], ...errors[1]]))
         }
         return this.__nickname
     }
@@ -302,10 +304,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get realname(): Promise<string> {
         if (this.__realname == None) {
-            this.__realname = Promise.any([
-                Promise.reject(new Error("没有提供真实姓名")),
+            this.__realname = Promise_any([
+                Promise.reject(new Error("没有提供用户真实姓名")),
                 this.thisDetail.then((info) => info.realname),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户真实姓名失败", ...errors]))
         }
         return this.__realname
     }
@@ -316,8 +318,8 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get avatarURL(): Promise<string> {
         if (this.__avatarURL == None) {
-            this.__avatarURL = Promise.any([
-                Promise.reject(new Error("没有提供头像地址")),
+            this.__avatarURL = Promise_any([
+                Promise.reject(new Error("没有提供用户头像地址")),
                 this.profile
                    .catch((error0) =>
                         this.thisDetail.catch((error1) =>
@@ -325,7 +327,7 @@ export class CodemaoUserInfo {
                                 this.honor.catch((error3) =>
                                     Promise.reject([error0, error1, error2, error3])))))
                    .then((info) => info.avatarURL),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户头像地址失败", errors[0], ...errors[1]]))
         }
         return this.__avatarURL
     }
@@ -336,10 +338,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get coverURL(): Promise<string> {
         if (this.__coverURL == None) {
-            this.__coverURL = Promise.any([
-                Promise.reject(new Error("没有提供背景图片地址")),
+            this.__coverURL = Promise_any([
+                Promise.reject(new Error("没有提供用户背景图片地址")),
                 this.honor.then((info) => info.coverURL)
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户背景图片地址失败", ...errors]))
         }
         return this.__coverURL
     }
@@ -350,8 +352,8 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get description(): Promise<string> {
         if (this.__description == None) {
-            this.__description = Promise.any([
-                Promise.reject(new Error("没有提供描述")),
+            this.__description = Promise_any([
+                Promise.reject(new Error("没有提供用户描述")),
                 this.profile
                    .catch((error0) =>
                         this.thisDetail.catch((error1) =>
@@ -359,7 +361,7 @@ export class CodemaoUserInfo {
                                 this.honor.catch((error3) =>
                                     Promise.reject([error0, error1, error2, error3])))))
                    .then((info) => info.description),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户描述失败", errors[0], ...errors[1]]))
         }
         return this.__description
     }
@@ -370,10 +372,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get doing(): Promise<string> {
         if (this.__doing == None) {
-            this.__doing = Promise.any([
-                Promise.reject(new Error("没有提供正在做什么")),
+            this.__doing = Promise_any([
+                Promise.reject(new Error("没有提供用户正在做什么")),
                 this.detail.then((info) => info.doing),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户正在做什么失败", ...errors]))
         }
         return this.__doing
     }
@@ -384,10 +386,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get email(): Promise<string> {
         if (this.__email == None) {
-            this.__email = Promise.any([
-                Promise.reject(new Error("没有提供邮箱")),
+            this.__email = Promise_any([
+                Promise.reject(new Error("没有提供用户邮箱")),
                 this.thisDetail.then((info) => info.email),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户邮箱失败", ...errors]))
         }
         return this.__email
     }
@@ -398,10 +400,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get level(): Promise<number> {
         if (this.__level == None) {
-            this.__level = Promise.any([
-                Promise.reject(new Error("没有提供级别")),
+            this.__level = Promise_any([
+                Promise.reject(new Error("没有提供用户级别")),
                 this.detail.then((info) => info.level),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户级别失败", ...errors]))
         }
         return this.__level
     }
@@ -412,10 +414,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get grade(): Promise<number> {
         if (this.__grade == None) {
-            this.__grade = Promise.any([
-                Promise.reject(new Error("没有提供等级")),
+            this.__grade = Promise_any([
+                Promise.reject(new Error("没有提供用户等级")),
                 this.profile.then((info) => info.grade),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户等级失败", ...errors]))
         }
         return this.__grade
     }
@@ -426,14 +428,14 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get birthday(): Promise<Date> {
         if (this.__birthday == None) {
-            this.__birthday = Promise.any([
-                Promise.reject(new Error("没有提供生日")),
+            this.__birthday = Promise_any([
+                Promise.reject(new Error("没有提供用户生日")),
                 this.profile
                     .catch((error0) =>
                         this.thisDetail.catch((error1) =>
                             Promise.reject([error0, error1])))
                     .then((info) => info.birthday),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户生日失败", errors[0], ...errors[1]]))
         }
         return this.__birthday
     }
@@ -444,14 +446,14 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get sex(): Promise<CodemaoUserSex> {
         if (this.__sex == None) {
-            this.__sex = Promise.any([
-                Promise.reject(new Error("没有提供性别")),
+            this.__sex = Promise_any([
+                Promise.reject(new Error("没有提供用户性别")),
                 this.thisDetail
                     .catch((error0) =>
                         this.detail.catch((error1) =>
                             Promise.reject([error0, error1])))
                     .then((info) => info.sex),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户性别失败", errors[0], ...errors[1]]))
         }
         return this.__sex
     }
@@ -462,14 +464,14 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get viewTimes(): Promise<number> {
         if (this.__viewTimes == None) {
-            this.__viewTimes = Promise.any([
-                Promise.reject(new Error("没有提供浏览次数")),
+            this.__viewTimes = Promise_any([
+                Promise.reject(new Error("没有提供用户被浏览次数")),
                 this.detail
                     .catch((error0) =>
                         this.honor.catch((error1) =>
                             Promise.reject([error0, error1])))
                     .then((info) => info.viewTimes),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户被浏览次数失败", errors[0], ...errors[1]]))
         }
         return this.__viewTimes
     }
@@ -480,14 +482,14 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get praiseTimes(): Promise<number> {
         if (this.__praiseTimes == None) {
-            this.__praiseTimes = Promise.any([
-                Promise.reject(new Error("没有提供点赞次数")),
+            this.__praiseTimes = Promise_any([
+                Promise.reject(new Error("没有提供用户被点赞次数")),
                 this.detail
                     .catch((error0) =>
                         this.honor.catch((error1) =>
                             Promise.reject([error0, error1])))
                     .then((info) => info.praiseTimes),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户被点赞次数失败", errors[0], ...errors[1]]))
         }
         return this.__praiseTimes
     }
@@ -498,10 +500,10 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get collectTimes(): Promise<number> {
         if (this.__collectTimes == None) {
-            this.__collectTimes = Promise.any([
-                Promise.reject(new Error("没有提供收藏次数")),
+            this.__collectTimes = Promise_any([
+                Promise.reject(new Error("没有提供用户被收藏次数")),
                 this.honor.then((info) => info.collectTimes),
-            ]).catch(({ errors }) => Promise.reject(errors))
+            ]).catch(({ errors }) => Promise.reject(["获取用户被收藏次数失败", ...errors]))
         }
         return this.__collectTimes
     }
@@ -512,14 +514,14 @@ export class CodemaoUserInfo {
     @enumerable(true)
     public get forkTimes(): Promise<number> {
         if (this.__forkTimes == None) {
-            this.__forkTimes = Promise.any([
-                Promise.reject(new Error("没有提供再创作次数")),
+            this.__forkTimes = Promise_any([
+                Promise.reject(new Error("没有提供用户被再创作次数")),
                 this.honor
                     .catch((error0) =>
                         this.detail.catch((error1) =>
                             Promise.reject([error0, error1])))
                     .then((info) => info.forkTimes),
-            ]).catch(({ errors }) => Promise.reject([errors[0], ...errors[1]]))
+            ]).catch(({ errors }) => Promise.reject(["获取用户被再创作次数失败", errors[0], ...errors[1]]))
         }
         return this.__forkTimes
     }
