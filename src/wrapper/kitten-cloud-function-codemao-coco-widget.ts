@@ -510,6 +510,33 @@ const types: SLIGHTNINGTypesObject = {
             ],
             valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ]
         }, {
+            key: "getUploadTimeout",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "上传超时时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: ValueType.NUMBER
+        }, {
             key: "getStringLengthLimit",
             params: [
                 {
@@ -660,6 +687,32 @@ const types: SLIGHTNINGTypesObject = {
                     label: "为",
                     valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
                     defaultValue: 0
+                }
+            ]
+        }, {
+            key: "setUploadTimeout",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "上传超时时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: ValueType.NUMBER,
+                    defaultValue: 4000
                 }
             ]
         }, {
@@ -1578,6 +1631,22 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         return configLayer.uploadIntervalTime[type]
     }
 
+    public async getUploadTimeout(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<number | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.uploadTimeout[type]
+    }
+
     public async getStringLengthLimit(
         this: this,
         configLayerName:
@@ -1660,6 +1729,22 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     ): Promise<void> {
         const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
         configLayer.uploadIntervalTime.config = value
+    }
+
+    public async setUploadTimeout(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        value: number
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.uploadTimeout.config = value
     }
 
     public async setStringLengthLimit(
