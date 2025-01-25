@@ -421,6 +421,7 @@ const types: SLIGHTNINGTypesObject = {
                     defaultValue: ""
                 }, {
                     key: "type",
+                    labelAfter: "的毫秒数",
                     dropdown: [
                         { label: "配置值", value: "config" },
                         { label: "生效值", value: "value" }
@@ -475,6 +476,7 @@ const types: SLIGHTNINGTypesObject = {
                     defaultValue: ""
                 }, {
                     key: "type",
+                    labelAfter: "的毫秒数",
                     dropdown: [
                         { label: "配置值", value: "config" },
                         { label: "生效值", value: "value" }
@@ -502,6 +504,7 @@ const types: SLIGHTNINGTypesObject = {
                     defaultValue: ""
                 }, {
                     key: "type",
+                    labelAfter: "的毫秒数",
                     dropdown: [
                         { label: "配置值", value: "config" },
                         { label: "生效值", value: "value" }
@@ -607,6 +610,7 @@ const types: SLIGHTNINGTypesObject = {
                 }, {
                     key: "value",
                     label: "为",
+                    labelAfter: "毫秒",
                     valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
                     defaultValue: 8000
                 }
@@ -659,6 +663,7 @@ const types: SLIGHTNINGTypesObject = {
                 }, {
                     key: "value",
                     label: "为",
+                    labelAfter: "毫秒",
                     valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
                     defaultValue: 0
                 }
@@ -685,6 +690,7 @@ const types: SLIGHTNINGTypesObject = {
                 }, {
                     key: "value",
                     label: "为",
+                    labelAfter: "毫秒",
                     valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
                     defaultValue: 0
                 }
