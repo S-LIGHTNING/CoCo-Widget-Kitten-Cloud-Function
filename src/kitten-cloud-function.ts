@@ -11,7 +11,7 @@ import { KittenCloudSendMessageType } from "./module/network/kitten-cloud-send-m
 import { KittenCloudReceiveMessageType } from "./module/network/kitten-cloud-receive-message-type"
 import { KittenCloudData } from "./module/cloud-data/kitten-cloud-data"
 import { KittenCloudPrivateVariableGroup } from "./module/cloud-data/group/kitten-cloud-private-variable-group"
-import { ConfigChange, SingleConfig } from "./utils/single-config"
+import { ConfigChange } from "./utils/single-config"
 import { CodemaoUser } from "./codemao/user/codemao-user"
 import { None } from "./utils/other"
 import { KittenCloudListGroup } from "./module/cloud-data/group/kitten-cloud-list-group"
@@ -113,13 +113,6 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
     /** 用于管理云列表。*/public list: KittenCloudListGroup
 
     /**
-     * 自动重连间隔时间（毫秒），填 `false` 表示禁用自动重连。
-     *
-     * 默认值：`8000`。
-     */
-    public readonly autoReconnectIntervalTime: SingleConfig<number | boolean>
-
-    /**
      * 创建一个新的 KittenCloudFunction 实例，当实例被创建时，会自动连接到源码云。
      *
      * @param work 一个数字，表示要连接的作品的 ID。
@@ -138,7 +131,6 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
         argument: number | CodemaoWork | KittenCloudWebSocket | WebSocketProxy | WebSocket
     ) {
         super()
-        this.autoReconnectIntervalTime = new SingleConfig<number | boolean>(8000, 8000)
         if (typeof argument == "number") {
             argument = new CodemaoWork({ id: argument })
         }

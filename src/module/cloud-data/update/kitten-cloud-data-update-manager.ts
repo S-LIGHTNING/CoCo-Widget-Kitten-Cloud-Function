@@ -1,6 +1,6 @@
 import { Signal } from "../../../utils/signal"
 import { ConfigChange } from "../../../utils/single-config"
-import { LocalPreupdate } from "../../kitten-cloud-function-config-layer"
+import { KittenCloudLocalPreupdate } from "../../kitten-cloud-function-config-layer"
 import { KittenCloudData } from "../kitten-cloud-data"
 import { KittenCloudDataUpdateSource } from "./kitten-cloud-data-update-source"
 import { KittenCloudDataUpdateCommand } from "./command/kitten-cloud-data-update-command"
@@ -43,7 +43,7 @@ export class KittenCloudDataUpdateManager {
             this.setUploadHandle()
         })
         this.data.localPreupdate.changed.connect(
-            ({ newValue: LocalPreupdate }: ConfigChange<LocalPreupdate>): void => {
+            ({ newValue: LocalPreupdate }: ConfigChange<KittenCloudLocalPreupdate>): void => {
                 this.withPauseUpdate((): void => {
                     if (LocalPreupdate) {
                         this.unuploadedUpdateCommand.execute()

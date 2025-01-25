@@ -1,7 +1,7 @@
 import { KittenCloudFunction } from "../../../kitten-cloud-function"
 import { None } from "../../../utils/other"
 import { Signal } from "../../../utils/signal"
-import { KittenCloudFunctionConfigLayer, ConfigObject } from "../../kitten-cloud-function-config-layer"
+import { KittenCloudFunctionConfigLayer, KittenCloudConfigObject } from "../../kitten-cloud-function-config-layer"
 import { KittenCloudSendMessageType } from "../../network/kitten-cloud-send-message-type"
 import { KittenCloudData } from "../kitten-cloud-data"
 import { KittenCloudDataUpdateCommand } from "../update/command/kitten-cloud-data-update-command"
@@ -34,7 +34,7 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
 
     public constructor(
         public readonly connection: KittenCloudFunction,
-        config: ConfigObject
+        config: KittenCloudConfigObject
     ) {
         super(connection, config)
         this.connected = new Signal()

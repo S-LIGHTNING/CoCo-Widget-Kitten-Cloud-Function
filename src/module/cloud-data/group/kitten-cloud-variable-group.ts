@@ -1,5 +1,5 @@
 import { KittenCloudFunction } from "../../../kitten-cloud-function"
-import { ConfigObject } from "../../kitten-cloud-function-config-layer"
+import { KittenCloudConfigObject } from "../../kitten-cloud-function-config-layer"
 import { KittenCloudVariable } from "../kitten-cloud-variable"
 import { KittenCloudDataUpdateCommandGroup } from "../update/command/kitten-cloud-data-update-command-group"
 import { KittenCloudDataGroup } from "./kitten-cloud-data-group"
@@ -7,7 +7,7 @@ import { KittenCloudDataGroup } from "./kitten-cloud-data-group"
 export abstract class KittenCloudVariableGroup<DATA_TYPE extends KittenCloudVariable = KittenCloudVariable>
     extends KittenCloudDataGroup<DATA_TYPE> {
 
-    public constructor(connection: KittenCloudFunction, config: ConfigObject = {}) {
+    public constructor(connection: KittenCloudFunction, config: KittenCloudConfigObject = {}) {
         super(connection, config)
     }
 

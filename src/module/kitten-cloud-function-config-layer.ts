@@ -1,13 +1,15 @@
 import { None } from "../utils/other"
 import { SingleConfig } from "../utils/single-config"
 
-export type LocalPreupdate = boolean
-export type CacheTime = number | boolean
-export type UploadIntervalTime = number | boolean
-export type ConfigObject = {
-    localPreupdate?: LocalPreupdate,
-    cacheTime?: CacheTime,
-    updateIntervalTime?: UploadIntervalTime,
+export type KittenCloudAutoReconnectIntervalTime = number | boolean
+export type KittenCloudLocalPreupdate = boolean
+export type KittenCloudCacheTime = number | boolean
+export type KittenCloudUploadIntervalTime = number | boolean
+export type KittenCloudConfigObject = {
+    autoReconnectIntervalTime?: KittenCloudAutoReconnectIntervalTime,
+    localPreupdate?: KittenCloudLocalPreupdate,
+    cacheTime?: KittenCloudCacheTime,
+    updateIntervalTime?: KittenCloudUploadIntervalTime,
     stringLengthLimit?: number,
     listLengthLimit?: number
 }
@@ -18,6 +20,13 @@ export type ConfigObject = {
 export abstract class KittenCloudFunctionConfigLayer {
 
     /**
+     * 自动重连间隔时间（毫秒），填 `false` 表示禁用自动重连。
+     *
+     * 默认值：`8000`。
+     */
+    public readonly autoReconnectIntervalTime: SingleConfig<KittenCloudAutoReconnectIntervalTime>
+
+    /**
      * 本地预更新。
      *
      * 在没有开启本地预更新时，每次在本地执行数据更新操作时，都会等到该操作同步到云端并收到来自服务器的反馈后再更新本地的数据，这与普通的变量在修改后立即更新其值并不相同。
@@ -26,13 +35,13 @@ export abstract class KittenCloudFunctionConfigLayer {
      *
      * 默认值：对于云变量开启，对于云列表关闭。
      */
-    public readonly localPreupdate: SingleConfig<LocalPreupdate>
+    public readonly localPreupdate: SingleConfig<KittenCloudLocalPreupdate>
     /**
      * 缓存时间（毫秒），填 `false` 表示绝对关闭。
      *
      * 默认值：`0`
      */
-    public readonly cacheTime: SingleConfig<CacheTime>
+    public readonly cacheTime: SingleConfig<KittenCloudCacheTime>
     /**
      * 上传间隔时间（毫秒），填 `false` 表示绝对关闭。
      *
@@ -40,7 +49,7 @@ export abstract class KittenCloudFunctionConfigLayer {
      *
      * @warning 私有云变量的上传间隔时间必须不少于 1500 毫秒。
      */
-    public readonly uploadIntervalTime: SingleConfig<UploadIntervalTime>
+    public readonly uploadIntervalTime: SingleConfig<KittenCloudUploadIntervalTime>
 
     /**
      * 字符串长度限制，字符串量的长度不能超过此限制，超出部分会被丢弃。
@@ -60,13 +69,15 @@ export abstract class KittenCloudFunctionConfigLayer {
     public readonly listLengthLimit: SingleConfig<number>
 
     public constructor(upper: KittenCloudFunctionConfigLayer | None = None, {
-        localPreupdate, cacheTime, updateIntervalTime, stringLengthLimit, listLengthLimit
-    }: ConfigObject = {}) {
-        this.localPreupdate = new SingleConfig<LocalPreupdate>(upper?.localPreupdate ?? localPreupdate ?? true, localPreupdate)
-        this.cacheTime = new SingleConfig<CacheTime>(upper?.cacheTime ?? cacheTime ?? 0, cacheTime)
-        this.uploadIntervalTime = new SingleConfig<UploadIntervalTime>(upper?.uploadIntervalTime ?? updateIntervalTime ?? 0, updateIntervalTime)
+        autoReconnectIntervalTime, localPreupdate, cacheTime, updateIntervalTime, stringLengthLimit, listLengthLimit
+    }: KittenCloudConfigObject = {}) {
+        this.autoReconnectIntervalTime = new SingleConfig(upper?.autoReconnectIntervalTime ?? autoReconnectIntervalTime ?? 8000, autoReconnectIntervalTime)
 
-        this.stringLengthLimit = new SingleConfig<number>(upper?.stringLengthLimit ?? stringLengthLimit ?? 1024, stringLengthLimit)
-        this.listLengthLimit = new SingleConfig<number>(upper?.listLengthLimit ?? listLengthLimit ?? 1000, listLengthLimit)
+        this.localPreupdate = new SingleConfig(upper?.localPreupdate ?? localPreupdate ?? true, localPreupdate)
+        this.cacheTime = new SingleConfig(upper?.cacheTime ?? cacheTime ?? 0, cacheTime)
+        this.uploadIntervalTime = new SingleConfig(upper?.uploadIntervalTime ?? updateIntervalTime ?? 0, updateIntervalTime)
+
+        this.stringLengthLimit = new SingleConfig(upper?.stringLengthLimit ?? stringLengthLimit ?? 1024, stringLengthLimit)
+        this.listLengthLimit = new SingleConfig(upper?.listLengthLimit ?? listLengthLimit ?? 1000, listLengthLimit)
     }
 }
