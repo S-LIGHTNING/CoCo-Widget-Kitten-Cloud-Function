@@ -60,4 +60,8 @@ export class KittenCloudListEmptyCommand extends KittenCloudListUpdateCommand {
             nth: "all"
         }
     }
+
+    public override toString(this: this): string {
+        return `清空云列表 ${this.data.name} `
+    }
 }

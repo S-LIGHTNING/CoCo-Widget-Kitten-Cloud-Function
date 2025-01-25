@@ -65,4 +65,8 @@ implements MergableCommand {
         }
         this.value = that.value
     }
+
+    public override toString(this: this): string {
+        return `设置云变量 ${this.data.name} 的值为 ${JSON.stringify(this.value)} `
+    }
 }
