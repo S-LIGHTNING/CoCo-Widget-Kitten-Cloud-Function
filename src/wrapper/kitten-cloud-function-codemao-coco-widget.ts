@@ -12,6 +12,7 @@ import { KittenCloudPrivateVariableGroup } from "../module/cloud-data/group/kitt
 import { KittenCloudPublicVariableGroup } from "../module/cloud-data/group/kitten-cloud-public-variable-group"
 import { KittenCloudListGroup } from "../module/cloud-data/group/kitten-cloud-list-group"
 import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, SLIGHTNINGWidgetSuper, ValueType } from "slightning-coco-widget"
+import { KittenCloudAutoReconnectIntervalTime, KittenCloudCacheTime, KittenCloudFunctionConfigLayer, KittenCloudLocalPreupdate, KittenCloudUploadIntervalTime } from "./kitten-cloud-function-package"
 const { project } = require("../../project")
 
 declare const KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED: boolean
@@ -60,48 +61,7 @@ const types: SLIGHTNINGTypesObject = {
             key: "connectedWorkID",
             label: "已连接作品编号",
             params: [],
-            valueType: ValueType.NUMBER,
-            blockOptions: {
-                space: 40
-            }
-        }, {
-            key: "getConnectionConfigValue",
-            label: "获取连接",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "自动重连间隔时间", value: "autoReconnectIntervalTime" },
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" },
-                        { label: "列表长度限制", value: "listLengthLimit" }
-                    ]
-                }
-            ],
-            valueType: [ValueType.NUMBER, ValueType.BOOLEAN]
-        }, {
-            key: "setConnectionConfig",
-            label: "设置连接",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "自动重连间隔时间", value: "autoReconnectIntervalTime" },
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" },
-                        { label: "列表长度限制", value: "listLengthLimit" }
-                    ]
-                }, {
-                    key: "value",
-                    label: "为",
-                    valueType: [ValueType.NUMBER, ValueType.BOOLEAN],
-                    defaultValue: 0
-                }
-            ]
+            valueType: ValueType.NUMBER
         }, {
             line:  "云变量",
             color: Color.BROWN
@@ -111,85 +71,14 @@ const types: SLIGHTNINGTypesObject = {
             params: [],
             valueType: ValueType.ARRAY
         }, {
-            key: "getPrivateVariableConfigValue",
-            label: "获取私有云变量",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" }
-                    ]
-                }
-            ],
-            valueType: [ValueType.NUMBER, ValueType.STRING]
-        }, {
-            key: "setPrivateVariableConfig",
-            label: "设置私有云变量",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" }
-                    ]
-                }, {
-                    key: "value",
-                    label: "为",
-                    valueType: [ValueType.NUMBER, ValueType.STRING],
-                    defaultValue: 0
-                }
-            ],
-            blockOptions: {
-                space: 40
-            }
-        }, {
             key: "getPublicVariableList",
             label: "公有云变量列表",
             params: [],
-            valueType: ValueType.ARRAY
-        }, {
-            key: "getPublicVariableConfigValue",
-            label: "获取公有云变量",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" }
-                    ]
-                }
-            ],
-            valueType: [ValueType.NUMBER, ValueType.STRING]
-        }, {
-            key: "setPublicVariableConfig",
-            label: "设置公有云变量",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" }
-                    ]
-                }, {
-                    key: "value",
-                    label: "为",
-                    valueType: [ValueType.NUMBER, ValueType.STRING],
-                    defaultValue: 0
-                }
-            ],
+            valueType: ValueType.ARRAY,
             blockOptions: {
                 space: 40
             }
-        } , {
+        }, {
             key: "variableGet",
             params: [
                 {
@@ -275,10 +164,10 @@ const types: SLIGHTNINGTypesObject = {
                         { label: "等级", value: "grade" },
                         { label: "生日", value: "birthday" },
                         { label: "性别", value: "sex" },
-                        { label: "总被浏览次数", value: "viewTimes" },
-                        { label: "总被点赞次数", value: "praiseTimes" },
-                        { label: "总被收藏次数", value: "collectTimes" },
-                        { label: "总被再创作次数", value: "forkTimes" }
+                        { label: "总被被浏览次数", value: "viewTimes" },
+                        { label: "总被被点赞次数", value: "praiseTimes" },
+                        { label: "总被被收藏次数", value: "collectTimes" },
+                        { label: "总被被再创作次数", value: "forkTimes" }
                     ]
                 }
             ],
@@ -295,43 +184,7 @@ const types: SLIGHTNINGTypesObject = {
             key: "getListList",
             label: "云列表列表",
             params: [],
-            valueType: ValueType.ARRAY
-        }, {
-            key: "getListConfigValue",
-            label: "获取云列表",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" },
-                        { label: "列表长度限制", value: "listLengthLimit" }
-                    ]
-                }
-            ],
-            valueType: [ValueType.NUMBER, ValueType.STRING]
-        }, {
-            key: "setListConfig",
-            label: "设置云列表",
-            params: [
-                {
-                    key: "type",
-                    dropdown: [
-                        { label: "本地预更新", value: "localPreupdate" },
-                        { label: "缓存时间", value: "cacheTime" },
-                        { label: "上传间隔时间", value: "uploadIntervalTime" },
-                        { label: "字符串长度限制", value: "stringLengthLimit" },
-                        { label: "列表长度限制", value: "listLengthLimit" }
-                    ]
-                }, {
-                    key: "value",
-                    label: "为",
-                    valueType: [ValueType.NUMBER, ValueType.STRING],
-                    defaultValue: 0
-                }
-            ],
+            valueType: ValueType.ARRAY,
             blockOptions: {
                 space: 40
             }
@@ -550,6 +403,459 @@ const types: SLIGHTNINGTypesObject = {
 
             ],
             valueType: ValueType.BOOLEAN
+        }, {
+            line: "配置",
+            color: Color.PINK
+        }, {
+            key: "getAutoReconnectIntervalTime",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "自动重连间隔时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ]
+        }, {
+            key: "getLocalPreupdate",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "本地预更新",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: ValueType.BOOLEAN
+        }, {
+            key: "getCacheTime",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "缓存时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ]
+        }, {
+            key: "getUploadIntervalTime",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "上传间隔时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ]
+        }, {
+            key: "getStringLengthLimit",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "字符串长度限制",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: ValueType.NUMBER
+        }, {
+            key: "getListLengthLimit",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "列表长度限制",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "type",
+                    dropdown: [
+                        { label: "配置值", value: "config" },
+                        { label: "生效值", value: "value" }
+                    ]
+                }
+            ],
+            valueType: ValueType.NUMBER,
+            blockOptions: {
+                space: 40
+            }
+        }, {
+            key: "setAutoReconnectIntervalTime",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "自动重连间隔时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
+                    defaultValue: 8000
+                }
+            ]
+        }, {
+            key: "setLocalPreupdate",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "本地预更新",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: ValueType.BOOLEAN,
+                    defaultValue: true
+                }
+            ]
+        }, {
+            key: "setCacheTime",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "缓存时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
+                    defaultValue: 0
+                }
+            ]
+        }, {
+            key: "setUploadIntervalTime",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "上传间隔时间",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ ValueType.NUMBER, ValueType.BOOLEAN ],
+                    defaultValue: 0
+                }
+            ]
+        }, {
+            key: "setStringLengthLimit",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有私有云变量", value: "allPrivateVariable" },
+                        { label: "所有公有云变量", value: "allPublicVariable" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云变量", value: "variable" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "字符串长度限制",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: ValueType.NUMBER,
+                    defaultValue: 1024
+                }
+            ]
+        }, {
+            key: "setListLengthLimit",
+            label: "设置",
+            params: [
+                {
+                    key: "configLayerName",
+                    dropdown: [
+                        { label: "连接", value: "connection" },
+                        { label: "所有云列表", value: "allList" },
+                        { label: "云列表", value: "list" }
+                    ]
+                }, {
+                    key: "dataName",
+                    labelAfter: "列表长度限制",
+                    valueType: ValueType.STRING,
+                    defaultValue: ""
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: ValueType.NUMBER,
+                    defaultValue: 1000
+                }
+            ]
+        }, {
+            line: "已弃用",
+            deprecated: true
+        }, {
+            key: "getConnectionConfigValue",
+            label: "获取连接",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "自动重连间隔时间", value: "autoReconnectIntervalTime" },
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" },
+                        { label: "列表长度限制", value: "listLengthLimit" }
+                    ]
+                }
+            ],
+            valueType: [ValueType.NUMBER, ValueType.BOOLEAN]
+        }, {
+            key: "setConnectionConfig",
+            label: "设置连接",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "自动重连间隔时间", value: "autoReconnectIntervalTime" },
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" },
+                        { label: "列表长度限制", value: "listLengthLimit" }
+                    ]
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ValueType.NUMBER, ValueType.BOOLEAN],
+                    defaultValue: 0
+                }
+            ]
+        }, {
+            key: "getPrivateVariableConfigValue",
+            label: "获取私有云变量",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" }
+                    ]
+                }
+            ],
+            valueType: [ValueType.NUMBER, ValueType.STRING]
+        }, {
+            key: "setPrivateVariableConfig",
+            label: "设置私有云变量",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" }
+                    ]
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ValueType.NUMBER, ValueType.STRING],
+                    defaultValue: 0
+                }
+            ]
+        }, {
+            key: "getPublicVariableConfigValue",
+            label: "获取公有云变量",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" }
+                    ]
+                }
+            ],
+            valueType: [ValueType.NUMBER, ValueType.STRING]
+        }, {
+            key: "setPublicVariableConfig",
+            label: "设置公有云变量",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" }
+                    ]
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ValueType.NUMBER, ValueType.STRING],
+                    defaultValue: 0
+                }
+            ]
+        }, {
+            key: "getListConfigValue",
+            label: "获取云列表",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" },
+                        { label: "列表长度限制", value: "listLengthLimit" }
+                    ]
+                }
+            ],
+            valueType: [ValueType.NUMBER, ValueType.STRING]
+        }, {
+            key: "setListConfig",
+            label: "设置云列表",
+            params: [
+                {
+                    key: "type",
+                    dropdown: [
+                        { label: "本地预更新", value: "localPreupdate" },
+                        { label: "缓存时间", value: "cacheTime" },
+                        { label: "上传间隔时间", value: "uploadIntervalTime" },
+                        { label: "字符串长度限制", value: "stringLengthLimit" },
+                        { label: "列表长度限制", value: "listLengthLimit" }
+                    ]
+                }, {
+                    key: "value",
+                    label: "为",
+                    valueType: [ValueType.NUMBER, ValueType.STRING],
+                    defaultValue: 0
+                }
+            ]
         }
     ],
     events: [
@@ -572,6 +878,20 @@ const types: SLIGHTNINGTypesObject = {
                 }
             ]
         }, {
+            key: "onOnlineUsersNumberChanged",
+            label: "在线用户数改变",
+            params: [
+                {
+                    key: "originalNumber",
+                    label: "原数量",
+                    valueType: ValueType.NUMBER
+                }, {
+                    key: "newNumber",
+                    label: "新数量",
+                    valueType: ValueType.NUMBER
+                }
+            ]
+        }, {
             key: "onPublicVariableValueChanged",
             label: "公有云变量值改变",
             params: [
@@ -591,20 +911,6 @@ const types: SLIGHTNINGTypesObject = {
                     key: "newValue",
                     label: "新值",
                     valueType: VariableValueType
-                }
-            ]
-        }, {
-            key: "onOnlineUsersNumberChanged",
-            label: "在线用户数改变",
-            params: [
-                {
-                    key: "originalNumber",
-                    label: "原数量",
-                    valueType: ValueType.NUMBER
-                }, {
-                    key: "newNumber",
-                    label: "新数量",
-                    valueType: ValueType.NUMBER
                 }
             ]
         }, {
@@ -919,53 +1225,6 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         return await this.getConnection().work.info.id
     }
 
-    public getConnectionConfigValue(this: this, type: string): number | boolean {
-        const connection: KittenCloudFunction = this.getConnection()
-        switch (type) {
-            case "autoReconnectIntervalTime": return connection.autoReconnectIntervalTime.value
-            case "localPreupdate": return connection.localPreupdate.value
-            case "cacheTime": return connection.cacheTime.value
-            case "uploadIntervalTime": return connection.uploadIntervalTime.value
-            case "stringLengthLimit": return connection.stringLengthLimit.value
-            case "listLengthLimit": return connection.listLengthLimit.value
-            default: throw new Error(`无法识别的连接配置类型：${type}`)
-        }
-    }
-
-    public setConnectionConfig(this: this, type: string, value: number | boolean): void {
-        const connection: KittenCloudFunction = this.getConnection()
-        switch (type) {
-            case "autoReconnectIntervalTime":
-                connection.autoReconnectIntervalTime.value = value
-                break
-            case "localPreupdate":
-                if (typeof value != "boolean") {
-                    throw new Error("本地预更新值必须为布尔值")
-                }
-                connection.localPreupdate.config = value
-                break
-            case "cacheTime":
-                connection.cacheTime.config = value
-                break
-            case "uploadIntervalTime":
-                connection.uploadIntervalTime.config = value
-                break
-            case "stringLengthLimit":
-                if (typeof value != "number") {
-                    throw new Error("字符串长度限制值必须为数字")
-                }
-                connection.stringLengthLimit.config = value
-                break
-            case "listLengthLimit":
-                if (typeof value != "number") {
-                    throw new Error("列表长度限制值必须为数字")
-                }
-                connection.listLengthLimit.config = value
-                break
-            default: throw new Error(`无法识别的连接配置类型：${type}`)
-        }
-    }
-
     private async getVariable(this: this, index: string): Promise<KittenCloudVariable> {
         const data: KittenCloudData = await this.getConnection().get(index)
         if (!(data instanceof KittenCloudVariable)) {
@@ -989,42 +1248,6 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         )
     }
 
-    public getPrivateVariableConfigValue(this: this, type: string): number | boolean {
-        const group: KittenCloudPrivateVariableGroup = this.getConnection().privateVariable
-        switch (type) {
-            case "localPreupdate": return group.localPreupdate.value
-            case "cacheTime": return group.cacheTime.value
-            case "uploadIntervalTime": return group.uploadIntervalTime.value
-            case "stringLengthLimit": return group.stringLengthLimit.value
-            default: throw new Error(`无法识别的私有云变量配置类型：${type}`)
-        }
-    }
-
-    public setPrivateVariableConfig(this: this, type: string, value: number | boolean): void {
-        const group: KittenCloudPrivateVariableGroup = this.getConnection().privateVariable
-        switch (type) {
-            case "localPreupdate":
-                if (typeof value != "boolean") {
-                    throw new Error("本地预更新值必须为布尔值")
-                }
-                group.localPreupdate.config = value
-                break
-            case "cacheTime":
-                group.cacheTime.config = value
-                break
-            case "uploadIntervalTime":
-                group.uploadIntervalTime.config = value
-                break
-            case "stringLengthLimit":
-                if (typeof value != "number") {
-                    throw new Error("字符串长度限制值必须为数字")
-                }
-                group.stringLengthLimit.config = value
-                break
-            default: throw new Error(`无法识别的私有云变量配置类型：${type}`)
-        }
-    }
-
     public async getPublicVariableList(this: this): Promise<object[]> {
         return this.getConnection().publicVariable.getAll().then(
             (variableArray: KittenCloudPublicVariable[]): object[] => {
@@ -1038,42 +1261,6 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
                 )
             }
         )
-    }
-
-    public getPublicVariableConfigValue(this: this, type: string): number | boolean {
-        const group: KittenCloudPublicVariableGroup = this.getConnection().publicVariable
-        switch (type) {
-            case "localPreupdate": return group.localPreupdate.value
-            case "cacheTime": return group.cacheTime.value
-            case "uploadIntervalTime": return group.uploadIntervalTime.value
-            case "stringLengthLimit": return group.stringLengthLimit.value
-            default: throw new Error(`无法识别的公有云变量配置类型：${type}`)
-        }
-    }
-
-    public setPublicVariableConfig(this: this, type: string, value: number | boolean): void {
-        const group: KittenCloudPublicVariableGroup = this.getConnection().publicVariable
-        switch (type) {
-            case "localPreupdate":
-                if (typeof value != "boolean") {
-                    throw new Error("本地预更新值必须为布尔值")
-                }
-                group.localPreupdate.config = value
-                break
-            case "cacheTime":
-                group.cacheTime.config = value
-                break
-            case "uploadIntervalTime":
-                group.uploadIntervalTime.config = value
-                break
-            case "stringLengthLimit":
-                if (typeof value != "number") {
-                    throw new Error("字符串长度限制值必须为数字")
-                }
-                group.stringLengthLimit.config = value
-                break
-            default: throw new Error(`无法识别的公有云变量配置类型：${type}`)
-        }
     }
 
     public async variableGet(this: this, name: string): Promise<KittenCloudVariableValue> {
@@ -1147,49 +1334,6 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
             throw new Error(`${index} 不是云列表`)
         }
         return data
-    }
-
-    public getListConfigValue(this: this, type: string): number | boolean {
-        const group: KittenCloudListGroup = this.getConnection().list
-        switch (type) {
-            case "localPreupdate": return group.localPreupdate.value
-            case "cacheTime": return group.cacheTime.value
-            case "uploadIntervalTime": return group.uploadIntervalTime.value
-            case "stringLengthLimit": return group.stringLengthLimit.value
-            case "listLengthLimit": return group.listLengthLimit.value
-            default: throw new Error(`无法识别的列表配置类型：${type}`)
-        }
-    }
-
-    public setListConfig(this: this, type: string, value: number | boolean): void {
-        const group: KittenCloudListGroup = this.getConnection().list
-        switch (type) {
-            case "localPreupdate":
-                if (typeof value != "boolean") {
-                    throw new Error("本地预更新值必须为布尔值")
-                }
-                group.localPreupdate.config = value
-                break
-            case "cacheTime":
-                group.cacheTime.config = value
-                break
-            case "uploadIntervalTime":
-                group.uploadIntervalTime.config = value
-                break
-            case "stringLengthLimit":
-                if (typeof value != "number") {
-                    throw new Error("字符串长度限制值必须为数字")
-                }
-                group.stringLengthLimit.config = value
-                break
-            case "listLengthLimit":
-                if (typeof value != "number") {
-                    throw new Error("列表长度限制值必须为数字")
-                }
-                group.listLengthLimit.config = value
-                break
-            default: throw new Error(`无法识别的列表配置类型：${type}`)
-        }
     }
 
     public async listIndex(
@@ -1345,6 +1489,365 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
 
     public async listContain(this: this, name: string, value: KittenCloudListItemValue): Promise<boolean> {
         return (await this.getList(name)).includes(value)
+    }
+
+    private async getConfigLayer(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string
+    ): Promise<KittenCloudFunctionConfigLayer> {
+        switch (configLayerName) {
+            case "connection":
+                return this.getConnection()
+            case "allPrivateVariable":
+                return this.getConnection().privateVariable
+            case "allPublicVariable":
+                return this.getConnection().publicVariable
+            case "allList":
+                return this.getConnection().list
+            case "variable":
+                return await this.getVariable(dataName)
+            case "list":
+                return await this.getList(dataName)
+            default:
+                throw new Error(`未知的配置层：${configLayerName}`)
+        }
+    }
+
+    public async getAutoReconnectIntervalTime(
+        this: this,
+        configLayerName: "connection",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<KittenCloudAutoReconnectIntervalTime | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.autoReconnectIntervalTime[type]
+    }
+
+    public async getLocalPreupdate(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<KittenCloudLocalPreupdate | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.localPreupdate[type]
+    }
+
+    public async getCacheTime(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<KittenCloudCacheTime | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.cacheTime[type]
+    }
+
+    public async getUploadIntervalTime(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<KittenCloudUploadIntervalTime | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.uploadIntervalTime[type]
+    }
+
+    public async getStringLengthLimit(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<number | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.stringLengthLimit[type]
+    }
+
+    public async getListLengthLimit(
+        this: this,
+        configLayerName: "connection" | "allList" | "list",
+        dataName: string,
+        type: "config" | "value"
+    ): Promise<number | None> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        return configLayer.listLengthLimit[type]
+    }
+
+    public async setAutoReconnectIntervalTime(
+        this: this,
+        configLayerName: "connection",
+        dataName: string,
+        value: KittenCloudAutoReconnectIntervalTime
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.autoReconnectIntervalTime.config = value
+    }
+
+    public async setLocalPreupdate(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        value: KittenCloudLocalPreupdate
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.localPreupdate.config = value
+    }
+
+    public async setCacheTime(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        value: KittenCloudCacheTime
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.cacheTime.config = value
+    }
+
+    public async setUploadIntervalTime(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        value: KittenCloudUploadIntervalTime
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.uploadIntervalTime.config = value
+    }
+
+    public async setStringLengthLimit(
+        this: this,
+        configLayerName:
+            "connection" |
+            "allPrivateVariable" |
+            "allPublicVariable" |
+            "allList" |
+            "variable" |
+            "list",
+        dataName: string,
+        value: number
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.stringLengthLimit.config = value
+    }
+
+    public async setListLengthLimit(
+        this: this,
+        configLayerName: "connection" | "allList" | "list",
+        dataName: string,
+        value: number
+    ): Promise<void> {
+        const configLayer: KittenCloudFunctionConfigLayer = await this.getConfigLayer(configLayerName, dataName)
+        configLayer.listLengthLimit.config = value
+    }
+
+    public getConnectionConfigValue(this: this, type: string): number | boolean {
+        const connection: KittenCloudFunction = this.getConnection()
+        switch (type) {
+            case "autoReconnectIntervalTime": return connection.autoReconnectIntervalTime.value
+            case "localPreupdate": return connection.localPreupdate.value
+            case "cacheTime": return connection.cacheTime.value
+            case "uploadIntervalTime": return connection.uploadIntervalTime.value
+            case "stringLengthLimit": return connection.stringLengthLimit.value
+            case "listLengthLimit": return connection.listLengthLimit.value
+            default: throw new Error(`无法识别的连接配置类型：${type}`)
+        }
+    }
+
+    public setConnectionConfig(this: this, type: string, value: number | boolean): void {
+        const connection: KittenCloudFunction = this.getConnection()
+        switch (type) {
+            case "autoReconnectIntervalTime":
+                connection.autoReconnectIntervalTime.value = value
+                break
+            case "localPreupdate":
+                if (typeof value != "boolean") {
+                    throw new Error("本地预更新值必须为布尔值")
+                }
+                connection.localPreupdate.config = value
+                break
+            case "cacheTime":
+                connection.cacheTime.config = value
+                break
+            case "uploadIntervalTime":
+                connection.uploadIntervalTime.config = value
+                break
+            case "stringLengthLimit":
+                if (typeof value != "number") {
+                    throw new Error("字符串长度限制值必须为数字")
+                }
+                connection.stringLengthLimit.config = value
+                break
+            case "listLengthLimit":
+                if (typeof value != "number") {
+                    throw new Error("列表长度限制值必须为数字")
+                }
+                connection.listLengthLimit.config = value
+                break
+            default: throw new Error(`无法识别的连接配置类型：${type}`)
+        }
+    }
+
+    public getPrivateVariableConfigValue(this: this, type: string): number | boolean {
+        const group: KittenCloudPrivateVariableGroup = this.getConnection().privateVariable
+        switch (type) {
+            case "localPreupdate": return group.localPreupdate.value
+            case "cacheTime": return group.cacheTime.value
+            case "uploadIntervalTime": return group.uploadIntervalTime.value
+            case "stringLengthLimit": return group.stringLengthLimit.value
+            default: throw new Error(`无法识别的私有云变量配置类型：${type}`)
+        }
+    }
+
+    public setPrivateVariableConfig(this: this, type: string, value: number | boolean): void {
+        const group: KittenCloudPrivateVariableGroup = this.getConnection().privateVariable
+        switch (type) {
+            case "localPreupdate":
+                if (typeof value != "boolean") {
+                    throw new Error("本地预更新值必须为布尔值")
+                }
+                group.localPreupdate.config = value
+                break
+            case "cacheTime":
+                group.cacheTime.config = value
+                break
+            case "uploadIntervalTime":
+                group.uploadIntervalTime.config = value
+                break
+            case "stringLengthLimit":
+                if (typeof value != "number") {
+                    throw new Error("字符串长度限制值必须为数字")
+                }
+                group.stringLengthLimit.config = value
+                break
+            default: throw new Error(`无法识别的私有云变量配置类型：${type}`)
+        }
+    }
+
+    public getPublicVariableConfigValue(this: this, type: string): number | boolean {
+        const group: KittenCloudPublicVariableGroup = this.getConnection().publicVariable
+        switch (type) {
+            case "localPreupdate": return group.localPreupdate.value
+            case "cacheTime": return group.cacheTime.value
+            case "uploadIntervalTime": return group.uploadIntervalTime.value
+            case "stringLengthLimit": return group.stringLengthLimit.value
+            default: throw new Error(`无法识别的公有云变量配置类型：${type}`)
+        }
+    }
+
+    public setPublicVariableConfig(this: this, type: string, value: number | boolean): void {
+        const group: KittenCloudPublicVariableGroup = this.getConnection().publicVariable
+        switch (type) {
+            case "localPreupdate":
+                if (typeof value != "boolean") {
+                    throw new Error("本地预更新值必须为布尔值")
+                }
+                group.localPreupdate.config = value
+                break
+            case "cacheTime":
+                group.cacheTime.config = value
+                break
+            case "uploadIntervalTime":
+                group.uploadIntervalTime.config = value
+                break
+            case "stringLengthLimit":
+                if (typeof value != "number") {
+                    throw new Error("字符串长度限制值必须为数字")
+                }
+                group.stringLengthLimit.config = value
+                break
+            default: throw new Error(`无法识别的公有云变量配置类型：${type}`)
+        }
+    }
+
+    public getListConfigValue(this: this, type: string): number | boolean {
+        const group: KittenCloudListGroup = this.getConnection().list
+        switch (type) {
+            case "localPreupdate": return group.localPreupdate.value
+            case "cacheTime": return group.cacheTime.value
+            case "uploadIntervalTime": return group.uploadIntervalTime.value
+            case "stringLengthLimit": return group.stringLengthLimit.value
+            case "listLengthLimit": return group.listLengthLimit.value
+            default: throw new Error(`无法识别的列表配置类型：${type}`)
+        }
+    }
+
+    public setListConfig(this: this, type: string, value: number | boolean): void {
+        const group: KittenCloudListGroup = this.getConnection().list
+        switch (type) {
+            case "localPreupdate":
+                if (typeof value != "boolean") {
+                    throw new Error("本地预更新值必须为布尔值")
+                }
+                group.localPreupdate.config = value
+                break
+            case "cacheTime":
+                group.cacheTime.config = value
+                break
+            case "uploadIntervalTime":
+                group.uploadIntervalTime.config = value
+                break
+            case "stringLengthLimit":
+                if (typeof value != "number") {
+                    throw new Error("字符串长度限制值必须为数字")
+                }
+                group.stringLengthLimit.config = value
+                break
+            case "listLengthLimit":
+                if (typeof value != "number") {
+                    throw new Error("列表长度限制值必须为数字")
+                }
+                group.listLengthLimit.config = value
+                break
+            default: throw new Error(`无法识别的列表配置类型：${type}`)
+        }
     }
 }
 
