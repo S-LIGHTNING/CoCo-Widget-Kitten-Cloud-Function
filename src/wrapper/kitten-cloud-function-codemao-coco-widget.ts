@@ -436,9 +436,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -463,9 +463,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -491,9 +491,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -519,9 +519,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -546,7 +546,7 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云列表", value: "list" }
                     ]
                 }, {
@@ -596,9 +596,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -622,9 +622,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -649,9 +649,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -676,9 +676,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -702,7 +702,7 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云列表", value: "list" }
                     ]
                 }, {
@@ -1501,9 +1501,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string
@@ -1511,11 +1511,11 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         switch (configLayerName) {
             case "connection":
                 return this.getConnection()
-            case "allPrivateVariable":
+            case "privateVariableGroup":
                 return this.getConnection().privateVariable
-            case "allPublicVariable":
+            case "publicVariableGroup":
                 return this.getConnection().publicVariable
-            case "allList":
+            case "listGroup":
                 return this.getConnection().list
             case "variable":
                 return await this.getVariable(dataName)
@@ -1540,9 +1540,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1556,9 +1556,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1572,9 +1572,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1588,9 +1588,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1602,7 +1602,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
 
     public async getListLengthLimit(
         this: this,
-        configLayerName: "connection" | "allList" | "list",
+        configLayerName: "connection" | "listGroup" | "list",
         dataName: string,
         type: "config" | "value"
     ): Promise<number | None> {
@@ -1624,9 +1624,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1640,9 +1640,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1656,9 +1656,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1672,9 +1672,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1686,7 +1686,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
 
     public async setListLengthLimit(
         this: this,
-        configLayerName: "connection" | "allList" | "list",
+        configLayerName: "connection" | "listGroup" | "list",
         dataName: string,
         value: number
     ): Promise<void> {
