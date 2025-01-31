@@ -519,9 +519,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -704,9 +704,9 @@ const types: SLIGHTNINGTypesObject = {
                     key: "configLayerName",
                     dropdown: [
                         { label: "连接", value: "connection" },
-                        { label: "所有私有云变量", value: "allPrivateVariable" },
-                        { label: "所有公有云变量", value: "allPublicVariable" },
-                        { label: "所有云列表", value: "allList" },
+                        { label: "私有云变量组", value: "privateVariableGroup" },
+                        { label: "公有云变量组", value: "publicVariableGroup" },
+                        { label: "云列表组", value: "listGroup" },
                         { label: "云变量", value: "variable" },
                         { label: "云列表", value: "list" }
                     ]
@@ -1643,9 +1643,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
@@ -1743,9 +1743,9 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this: this,
         configLayerName:
             "connection" |
-            "allPrivateVariable" |
-            "allPublicVariable" |
-            "allList" |
+            "privateVariableGroup" |
+            "publicVariableGroup" |
+            "listGroup" |
             "variable" |
             "list",
         dataName: string,
