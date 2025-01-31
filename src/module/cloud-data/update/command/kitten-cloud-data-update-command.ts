@@ -16,4 +16,5 @@ export abstract class KittenCloudDataUpdateCommand implements RevocableCommand {
     public toCloudString(this: this): string {
         return JSON.stringify(this.toCloudJSON())
     }
+    public abstract toString(this: this): string
 }

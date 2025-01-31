@@ -11,6 +11,10 @@ export class CommandGroup<COMMAND_TYPE extends Command = Command> implements Com
         }
     }
 
+    public get(this: this, index: number): COMMAND_TYPE | None {
+        return this.commandArray[index]
+    }
+
     get length(): number {
         return this.commandArray.length
     }
@@ -55,5 +59,9 @@ export class CommandGroup<COMMAND_TYPE extends Command = Command> implements Com
 
     public pop(this: this): COMMAND_TYPE | None {
         return this.commandArray.pop()
+    }
+
+    public [Symbol.iterator](this: this): Iterator<COMMAND_TYPE> {
+        return this.commandArray[Symbol.iterator]()
     }
 }

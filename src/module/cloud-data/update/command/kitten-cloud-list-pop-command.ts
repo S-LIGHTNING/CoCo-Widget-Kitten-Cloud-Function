@@ -62,4 +62,8 @@ export class KittenCloudListPopCommand extends KittenCloudListUpdateCommand {
             nth: "last"
         }
     }
+
+    public override toString(this: this): string {
+        return `删除云列表 ${this.data.name} 最后一项`
+    }
 }

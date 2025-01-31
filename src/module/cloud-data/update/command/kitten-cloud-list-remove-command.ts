@@ -69,4 +69,8 @@ export class KittenCloudListRemoveCommand extends KittenCloudListUpdateCommand {
             nth: this.index + 1
         }
     }
+
+    public override toString(this: this): string {
+        return `移除云列表 ${this.data.name} 第 ${this.index + 1} 项`
+    }
 }

@@ -67,4 +67,8 @@ export class KittenCloudListReplaceLastCommand extends KittenCloudListUpdateComm
             value: this.value
         }
     }
+
+    public override toString(): string {
+        return `替换云列表 ${this.data.name} 最后一项为 ${JSON.stringify(this.value)} `
+    }
 }

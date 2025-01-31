@@ -13,7 +13,7 @@ export class KittenCloudPrivateVariableGroup extends KittenCloudVariableGroup<Ki
     public constructor(connection: KittenCloudFunction) {
         super(connection, {
             cacheTime: 100,
-            updateIntervalTime: 1500
+            uploadIntervalTime: 1500
         })
         this.getRankingListArray = []
     }

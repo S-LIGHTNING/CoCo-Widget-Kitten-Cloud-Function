@@ -73,4 +73,8 @@ export class KittenCloudListUnshiftCommand extends KittenCloudListUpdateCommand 
             value: this.value
         }
     }
+
+    public override toString(this: this): string {
+        return `添加 ${JSON.stringify(this.value)} 到云列表 ${this.data.name} 首项`
+    }
 }

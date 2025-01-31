@@ -12,7 +12,7 @@
         this.symbol = Symbol(name)
     }
 
-    public toString() {
+    public toString(): string {
         return this.name
     }
 }

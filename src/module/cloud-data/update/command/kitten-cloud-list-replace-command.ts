@@ -75,4 +75,8 @@ export class KittenCloudListReplaceCommand extends KittenCloudListUpdateCommand 
             value: this.value
         }
     }
+
+    public override toString(): string {
+        return `替换云列表 ${this.data.name} 第 ${this.index + 1} 项为 ${JSON.stringify(this.value)} `
+    }
 }

@@ -22,7 +22,7 @@ import { ArrayChange } from "diff"
 export type KittenCloudListItemValue = number | string
 
 /**
- * 云列表添加尾项到消息的类型，当云列表添加尾项时会收到此消息，详见 {@link KittenCloudList.pushed}。
+ * 云列表添加尾项消息的类型，当云列表添加尾项时会收到此消息，详见 {@link KittenCloudList.pushed}。
  */
 export type KittenCloudListPushMessageObject = {
     source: KittenCloudDataUpdateSource,

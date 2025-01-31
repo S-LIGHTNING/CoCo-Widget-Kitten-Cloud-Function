@@ -9,7 +9,8 @@ export type KittenCloudConfigObject = {
     autoReconnectIntervalTime?: KittenCloudAutoReconnectIntervalTime,
     localPreupdate?: KittenCloudLocalPreupdate,
     cacheTime?: KittenCloudCacheTime,
-    updateIntervalTime?: KittenCloudUploadIntervalTime,
+    uploadIntervalTime?: KittenCloudUploadIntervalTime,
+    uploadTimeout?: number,
     stringLengthLimit?: number,
     listLengthLimit?: number
 }
@@ -50,6 +51,12 @@ export abstract class KittenCloudFunctionConfigLayer {
      * @warning 私有云变量的上传间隔时间必须不少于 1500 毫秒。
      */
     public readonly uploadIntervalTime: SingleConfig<KittenCloudUploadIntervalTime>
+    /**
+     * 上传超时时间（毫秒），填 `0` 表示永不超时。
+     *
+     * 默认值：`4000`
+     */
+    public readonly uploadTimeout: SingleConfig<number>
 
     /**
      * 字符串长度限制，字符串量的长度不能超过此限制，超出部分会被丢弃。
@@ -69,13 +76,19 @@ export abstract class KittenCloudFunctionConfigLayer {
     public readonly listLengthLimit: SingleConfig<number>
 
     public constructor(upper: KittenCloudFunctionConfigLayer | None = None, {
-        autoReconnectIntervalTime, localPreupdate, cacheTime, updateIntervalTime, stringLengthLimit, listLengthLimit
+        autoReconnectIntervalTime,
+        localPreupdate, cacheTime,
+        uploadIntervalTime,
+        uploadTimeout,
+        stringLengthLimit,
+        listLengthLimit
     }: KittenCloudConfigObject = {}) {
         this.autoReconnectIntervalTime = new SingleConfig(upper?.autoReconnectIntervalTime ?? autoReconnectIntervalTime ?? 8000, autoReconnectIntervalTime)
 
         this.localPreupdate = new SingleConfig(upper?.localPreupdate ?? localPreupdate ?? true, localPreupdate)
         this.cacheTime = new SingleConfig(upper?.cacheTime ?? cacheTime ?? 0, cacheTime)
-        this.uploadIntervalTime = new SingleConfig(upper?.uploadIntervalTime ?? updateIntervalTime ?? 0, updateIntervalTime)
+        this.uploadIntervalTime = new SingleConfig(upper?.uploadIntervalTime ?? uploadIntervalTime ?? 0, uploadIntervalTime)
+        this.uploadTimeout = new SingleConfig(upper?.uploadTimeout ?? uploadTimeout ?? 4000, uploadTimeout)
 
         this.stringLengthLimit = new SingleConfig(upper?.stringLengthLimit ?? stringLengthLimit ?? 1024, stringLengthLimit)
         this.listLengthLimit = new SingleConfig(upper?.listLengthLimit ?? listLengthLimit ?? 1000, listLengthLimit)

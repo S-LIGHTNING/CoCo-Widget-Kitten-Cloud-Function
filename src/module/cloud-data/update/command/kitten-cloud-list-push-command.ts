@@ -65,4 +65,8 @@ export class KittenCloudListPushCommand extends KittenCloudListUpdateCommand {
             value: this.value
         }
     }
+
+    public override toString(): string {
+        return `添加 ${JSON.stringify(this.value)} 到云列表 ${this.data.name} 末项`
+    }
 }
