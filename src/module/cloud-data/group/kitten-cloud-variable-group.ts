@@ -4,6 +4,9 @@ import { KittenCloudVariable } from "../kitten-cloud-variable"
 import { KittenCloudDataUpdateCommandGroup } from "../update/command/kitten-cloud-data-update-command-group"
 import { KittenCloudDataGroup } from "./kitten-cloud-data-group"
 
+/**
+ * 云变量组。
+ */
 export abstract class KittenCloudVariableGroup<DATA_TYPE extends KittenCloudVariable = KittenCloudVariable>
     extends KittenCloudDataGroup<DATA_TYPE> {
 

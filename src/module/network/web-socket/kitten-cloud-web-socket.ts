@@ -4,6 +4,7 @@ import { CodemaoWork } from "../../../codemao/work/codemao-work"
 import { Signal } from "../../../utils/signal"
 import { KittenCloudWebSocketMessageType } from "./kitten-cloud-web-socket-message-type"
 import { None } from "../../../utils/other"
+import { CodemaoWebSocket } from "../../../codemao/codemao-environment"
 
 const KITTEN_WEB_SOCKET_URL_PARAMS = {
     [CodemaoWorkEditor.NEMO.symbol]: {
@@ -40,7 +41,8 @@ export class KittenCloudWebSocket {
     private isOpened: boolean = false
     private socketResolve: ((value: WebSocketProxy | PromiseLike<WebSocketProxy>) => void) | None = None
 
-    public readonly sended: Signal<string>
+    public readonly beforeSend: Signal<{ data: string | ArrayBufferLike | Blob | ArrayBufferView }> = new Signal()
+    public readonly sended: Signal<string | ArrayBufferLike | Blob | ArrayBufferView>
     public readonly opened: Signal<void>
     public readonly disconnected: Signal<void>
     public readonly received: Signal<[string, unknown]>
@@ -52,6 +54,7 @@ export class KittenCloudWebSocket {
 
     public constructor(argument: CodemaoWork | WebSocketProxy | WebSocket) {
         this.manage = argument instanceof CodemaoWork
+        this.beforeSend = new Signal()
         this.sended = new Signal()
         this.opened = new Signal()
         this.disconnected = new Signal()
@@ -73,26 +76,29 @@ export class KittenCloudWebSocket {
         this.setSocket(argument)
     }
 
-    private setSocket(this: this, argument: CodemaoWork | WebSocketProxy | WebSocket): void {
+    private setSocket(this: this, argument: string | CodemaoWork | WebSocketProxy | WebSocket): void {
         this.socket = this.getSocket(argument)
         if (this.socketResolve != None) {
             this.socketResolve(this.socket)
             this.socketResolve = None
         }
         this.socket.then((socket: WebSocketProxy): void => {
-            socket.sended.connect((message: string): void => { this.sended.emit(message) })
+            socket.beforeSend.connect((message: { data: string | ArrayBufferLike | Blob | ArrayBufferView }): void => { this.beforeSend.emit(message) })
+            socket.sended.connect((message: string | ArrayBufferLike | Blob | ArrayBufferView): void => { this.sended.emit(message) })
             socket.received.connect((message: MessageEvent): void => { this.handleReceived(message.data) })
-            socket.errored.connect((error: Event): void => { this.errored.emit(error) })
+            socket.errored.connect((error: Event | Error): void => { this.errored.emit(error) })
             socket.closed.connect((event: CloseEvent): void => { this.handleClose(event) })
         }).catch((reason: unknown): void => {
             this.errored.emit(reason)
         })
     }
 
-    private async getSocket(this: this, argument: CodemaoWork | WebSocketProxy | WebSocket): Promise<WebSocketProxy> {
-        if (argument instanceof CodemaoWork) {
+    private async getSocket(this: this, argument: string | CodemaoWork | WebSocketProxy | WebSocket): Promise<WebSocketProxy> {
+        if (typeof argument == "string") {
+            return new WebSocketProxy(await CodemaoWebSocket(argument))
+        } else if (argument instanceof CodemaoWork) {
             const url: string = await (async (): Promise<string> => {
-                const scheme: "wss" | "ws" = typeof global == "object" || window.location.protocol == "https:" ? "wss" : "ws"
+                const scheme: "wss" | "ws" = typeof global == "object" || window.location.protocol != "http:" ? "wss" : "ws"
                 const host: string = ["socketcv", "codemao", "cn"].join(".")
                 const port = 9096
                 const path = "/cloudstorage/"
@@ -107,7 +113,7 @@ export class KittenCloudWebSocket {
                 }`
                 return `${scheme}://${host}:${port}${path}?${params}`
             })()
-            const socket = new WebSocketProxy(url)
+            const socket = new WebSocketProxy(await CodemaoWebSocket(url))
             return socket
         } else if (argument instanceof WebSocket) {
             return new WebSocketProxy(argument)
@@ -216,11 +222,10 @@ export class KittenCloudWebSocket {
 
     private handleClose(this: this, event: CloseEvent): void {
         this.disconnected.emit()
-        if (!this.autoReconnect) {
+        if (!this.isOpened || !this.autoReconnect) {
             this.closed.emit(event)
             return
-        }
-        if (this.isOpened) {
+        } else {
             this.isOpened = false
             if (this.manage) {
                 let url: string
@@ -230,7 +235,7 @@ export class KittenCloudWebSocket {
                 this.socket = new Promise((resolve): void => {
                     setTimeout((): void => {
                         this.socketResolve = resolve
-                        this.setSocket(new WebSocketProxy(url))
+                        this.setSocket(url)
                     }, this.autoReconnectIntervalTime)
                 })
             } else {

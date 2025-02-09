@@ -1,14 +1,15 @@
 import Promise_any from "@ungap/promise-any"
 
-import { enumerable, None } from "../../utils/other"
+import { enumerable } from "../../utils/other"
 import { getThisUserDetail, getUserProfile, getUserDetail, getUserHonor } from "../codemao-community-api"
 import { CodemaoUserSex } from "./codemao-user-sex"
+import { CodemaoUserBadge } from "./codemao-user-badge"
 
 /**
  * 用户信息对象。
  */
 export type CodemaoUserInfoObject = {
-    authorization?: string | None
+    authorization?: string | null | undefined
     id?: number
     username?: string
     nickname?: string
@@ -18,7 +19,7 @@ export type CodemaoUserInfoObject = {
     description?: string
     doing?: string
     email?: string
-    level?: number
+    badge?: CodemaoUserBadge
     grade?: number
     birthday?: Date
     sex?: CodemaoUserSex
@@ -45,6 +46,7 @@ type ThisUserDetailObject = Pick<Required<CodemaoUserInfoObject>,
     "avatarURL" |
     "description" |
     "email" |
+    "badge" |
     "birthday" |
     "sex"
 >
@@ -55,7 +57,6 @@ type UserDetailObject = Pick<Required<CodemaoUserInfoObject>,
     "avatarURL" |
     "description" |
     "doing" |
-    "level" |
     "sex" |
     "viewTimes" |
     "praiseTimes" |
@@ -69,7 +70,7 @@ type UserHonorObject = Pick<Required<CodemaoUserInfoObject>,
     "coverURL" |
     "description" |
     "doing" |
-    "level" |
+    "badge" |
     "viewTimes" |
     "praiseTimes" |
     "collectTimes" |
@@ -111,7 +112,7 @@ export class CodemaoUserInfo {
 
     private get profile(): Promise<UserProfileObject> {
         return (async (): Promise<UserProfileObject> => {
-            if (this.__profile == None) {
+            if (this.__profile == null) {
                 Object.defineProperty(this, "__profile", {
                     value: (async (): Promise<UserProfileObject> => {
                         const profile = await getUserProfile(await this.authorization)
@@ -135,7 +136,7 @@ export class CodemaoUserInfo {
 
     private get thisDetail(): Promise<ThisUserDetailObject> {
         return (async (): Promise<ThisUserDetailObject> => {
-            if (this.__thisDetail == None) {
+            if (this.__thisDetail == null) {
                 Object.defineProperty(this, "__thisDetail", {
                     value: (async (): Promise<ThisUserDetailObject> => {
                         const userDetail = await getThisUserDetail(await this.authorization)
@@ -147,6 +148,7 @@ export class CodemaoUserInfo {
                             avatarURL: userDetail.avatar_url,
                             description: userDetail.description,
                             email: userDetail.email,
+                            badge: CodemaoUserBadge.parse(userDetail.author_level),
                             birthday: new Date(userDetail.birthday * 1000),
                             sex: CodemaoUserSex.from(userDetail.sex),
                         }
@@ -162,7 +164,7 @@ export class CodemaoUserInfo {
 
     private get detail(): Promise<UserDetailObject> {
         return (async (): Promise<UserDetailObject> => {
-            if (this.__detail == None) {
+            if (this.__detail == null) {
                 Object.defineProperty(this, "__detail", {
                     value: (async (): Promise<UserDetailObject> => {
                         const userDetail = await getUserDetail(await this.id)
@@ -172,7 +174,6 @@ export class CodemaoUserInfo {
                             avatarURL: userDetail.user.avatar,
                             description: userDetail.user.description,
                             doing: userDetail.user.doing,
-                            level: userDetail.user.level,
                             sex: CodemaoUserSex.from(userDetail.user.sex),
                             viewTimes: userDetail.viewTimes,
                             praiseTimes: userDetail.praiseTimes,
@@ -190,7 +191,7 @@ export class CodemaoUserInfo {
 
     private get honor(): Promise<UserHonorObject> {
         return (async (): Promise<UserHonorObject> => {
-            if (this.__honor == None) {
+            if (this.__honor == null) {
                 Object.defineProperty(this, "__honor", {
                     value: (async (): Promise<UserHonorObject> => {
                         const honor = await getUserHonor(await this.id)
@@ -201,7 +202,7 @@ export class CodemaoUserInfo {
                             coverURL: honor.user_cover,
                             description: honor.user_description,
                             doing: honor.doing,
-                            level: honor.author_level,
+                            badge: CodemaoUserBadge.parse(honor.author_level),
                             viewTimes: honor.view_times,
                             praiseTimes: honor.liked_total,
                             collectTimes: honor.collect_times,
@@ -217,7 +218,7 @@ export class CodemaoUserInfo {
         })()
     }
 
-    private __authorization?: Promise<string | None>
+    private __authorization?: Promise<string | null>
     private __id?: Promise<number>
     private __username?: Promise<string>
     private __nickname?: Promise<string>
@@ -227,7 +228,7 @@ export class CodemaoUserInfo {
     private __description?: Promise<string>
     private __doing?: Promise<string>
     private __email?: Promise<string>
-    private __level?: Promise<number>
+    private __badge?: Promise<CodemaoUserBadge>
     private __grade?: Promise<number>
     private __birthday?: Promise<Date>
     private __sex?: Promise<CodemaoUserSex>
@@ -240,11 +241,13 @@ export class CodemaoUserInfo {
      * 身份信息。
      */
     @enumerable(true)
-    public get authorization(): Promise<string | None> {
-        if (this.__authorization == None) {
+    public get authorization(): Promise<string | null | undefined> {
+        if (this.__authorization == null) {
             this.__authorization = Promise.reject(new Error("没有提供身份信息"))
         }
-        return this.__authorization
+        return this.__authorization.catch((error) =>
+            Promise.reject(["获取用户身份信息失败", error])
+        )
     }
 
     /**
@@ -252,7 +255,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get id(): Promise<number> {
-        if (this.__id == None) {
+        if (this.__id == null) {
             this.__id = Promise_any([
                 Promise.reject(new Error("没有提供用户ID")),
                 this.profile
@@ -269,7 +272,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get username(): Promise<string> {
-        if (this.__username == None) {
+        if (this.__username == null) {
             this.__username = Promise_any([
                 Promise.reject(new Error("没有提供用户名")),
                 this.thisDetail.then((info) => info.username),
@@ -283,7 +286,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get nickname(): Promise<string> {
-        if (this.__nickname == None) {
+        if (this.__nickname == null) {
             this.__nickname = Promise_any([
                 Promise.reject(new Error("没有提供用户昵称")),
                 this.profile
@@ -303,7 +306,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get realname(): Promise<string> {
-        if (this.__realname == None) {
+        if (this.__realname == null) {
             this.__realname = Promise_any([
                 Promise.reject(new Error("没有提供用户真实姓名")),
                 this.thisDetail.then((info) => info.realname),
@@ -317,7 +320,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get avatarURL(): Promise<string> {
-        if (this.__avatarURL == None) {
+        if (this.__avatarURL == null) {
             this.__avatarURL = Promise_any([
                 Promise.reject(new Error("没有提供用户头像地址")),
                 this.profile
@@ -337,7 +340,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get coverURL(): Promise<string> {
-        if (this.__coverURL == None) {
+        if (this.__coverURL == null) {
             this.__coverURL = Promise_any([
                 Promise.reject(new Error("没有提供用户背景图片地址")),
                 this.honor.then((info) => info.coverURL)
@@ -351,7 +354,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get description(): Promise<string> {
-        if (this.__description == None) {
+        if (this.__description == null) {
             this.__description = Promise_any([
                 Promise.reject(new Error("没有提供用户描述")),
                 this.profile
@@ -371,7 +374,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get doing(): Promise<string> {
-        if (this.__doing == None) {
+        if (this.__doing == null) {
             this.__doing = Promise_any([
                 Promise.reject(new Error("没有提供用户正在做什么")),
                 this.detail.then((info) => info.doing),
@@ -385,7 +388,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get email(): Promise<string> {
-        if (this.__email == None) {
+        if (this.__email == null) {
             this.__email = Promise_any([
                 Promise.reject(new Error("没有提供用户邮箱")),
                 this.thisDetail.then((info) => info.email),
@@ -395,17 +398,22 @@ export class CodemaoUserInfo {
     }
 
     /**
-     * 用户级别。
+     * 用户创作者勋章。
      */
     @enumerable(true)
-    public get level(): Promise<number> {
-        if (this.__level == None) {
-            this.__level = Promise_any([
-                Promise.reject(new Error("没有提供用户级别")),
-                this.detail.then((info) => info.level),
-            ]).catch(({ errors }) => Promise.reject(["获取用户级别失败", ...errors]))
+    public get badge(): Promise<CodemaoUserBadge> {
+        if (this.__badge == null) {
+            this.__badge = Promise_any([
+                Promise.reject(new Error("没有提供用户创作者勋章")),
+                this.thisDetail
+                    .catch((error0) =>
+                        this.honor
+                            .catch((error1) =>
+                                Promise.reject([error0, error1])))
+                .then((info) => info.badge),
+            ]).catch(({ errors }) => Promise.reject(["获取用户创作者勋章", errors[0], ...errors[1]]))
         }
-        return this.__level
+        return this.__badge
     }
 
     /**
@@ -413,7 +421,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get grade(): Promise<number> {
-        if (this.__grade == None) {
+        if (this.__grade == null) {
             this.__grade = Promise_any([
                 Promise.reject(new Error("没有提供用户等级")),
                 this.profile.then((info) => info.grade),
@@ -427,7 +435,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get birthday(): Promise<Date> {
-        if (this.__birthday == None) {
+        if (this.__birthday == null) {
             this.__birthday = Promise_any([
                 Promise.reject(new Error("没有提供用户生日")),
                 this.profile
@@ -445,7 +453,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get sex(): Promise<CodemaoUserSex> {
-        if (this.__sex == None) {
+        if (this.__sex == null) {
             this.__sex = Promise_any([
                 Promise.reject(new Error("没有提供用户性别")),
                 this.thisDetail
@@ -463,7 +471,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get viewTimes(): Promise<number> {
-        if (this.__viewTimes == None) {
+        if (this.__viewTimes == null) {
             this.__viewTimes = Promise_any([
                 Promise.reject(new Error("没有提供用户被浏览次数")),
                 this.detail
@@ -481,7 +489,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get praiseTimes(): Promise<number> {
-        if (this.__praiseTimes == None) {
+        if (this.__praiseTimes == null) {
             this.__praiseTimes = Promise_any([
                 Promise.reject(new Error("没有提供用户被点赞次数")),
                 this.detail
@@ -499,7 +507,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get collectTimes(): Promise<number> {
-        if (this.__collectTimes == None) {
+        if (this.__collectTimes == null) {
             this.__collectTimes = Promise_any([
                 Promise.reject(new Error("没有提供用户被收藏次数")),
                 this.honor.then((info) => info.collectTimes),
@@ -513,7 +521,7 @@ export class CodemaoUserInfo {
      */
     @enumerable(true)
     public get forkTimes(): Promise<number> {
-        if (this.__forkTimes == None) {
+        if (this.__forkTimes == null) {
             this.__forkTimes = Promise_any([
                 Promise.reject(new Error("没有提供用户被再创作次数")),
                 this.honor
@@ -527,11 +535,20 @@ export class CodemaoUserInfo {
     }
 
     /**
-     * @param info 已知的用户信息。
+     * @param info 已知的用户信息，如果什么信息都不提供，则表示表示当前登录的用户。
      */
     constructor(info: CodemaoUserInfoObject) {
+        for (const key in this) {
+            if (key.startsWith("__") && this[key] == Node) {
+                Object.defineProperty(this, key, {
+                    value: undefined,
+                    enumerable: false,
+                    configurable: true
+                })
+            }
+        }
         if (Object.keys(info).length == 0) {
-            this.__authorization = Promise.resolve(None)
+            this.__authorization = Promise.resolve(null)
         } else {
             this.setCache(info)
         }
@@ -540,7 +557,7 @@ export class CodemaoUserInfo {
     public setCache(info: CodemaoUserInfoObject): void {
         for (let key in info) {
             let value: typeof info[keyof typeof info] = info[key as keyof typeof info]
-            if (value != None) {
+            if (value != null) {
                 Object.defineProperty(this, `__${key}`, {
                     value: Promise.resolve(value),
                     enumerable: false,

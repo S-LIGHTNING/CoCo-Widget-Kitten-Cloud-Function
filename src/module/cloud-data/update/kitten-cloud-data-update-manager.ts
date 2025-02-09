@@ -54,8 +54,7 @@ export class KittenCloudDataUpdateManager {
                 if (uploadTimeout > 0) {
                     for (let i: number = 0; i < this.uploadingTimeoutHandle.length; i++) {
                         this.uploadingTimeoutHandle[i] = setTimeout((): void => {
-                            this.handleUploadingError()
-                            this.connection.errored.emit(new Error(`${this.uploadingUpdateCommand.get(i)}失败：上传超时`))
+                            this.handleUploadingError(new Error("上传超时"))
                         }, uploadTimeout + (this.uploadingStartTimeArray[i] ?? 0) - Date.now())
                     }
                 }
@@ -79,12 +78,33 @@ export class KittenCloudDataUpdateManager {
                 clearTimeout(this.uploadHandle)
                 this.uploadHandle = None
             }
+            if (this.data.localPreupdate.value) {
+                this.uploadingUpdateCommand.revoke()
+            }
+            for (const command of this.uploadingUpdateCommand) {
+                command.fail(new Error("连接已断开"))
+            }
             this.uploadingUpdateCommand = new KittenCloudDataUpdateCommandGroup()
             this.uploadingStartTimeArray = []
             for (const handle of this.uploadingTimeoutHandle) {
                 clearTimeout(handle)
             }
             this.uploadingTimeoutHandle = []
+        })
+        this.connection.closed.connect((): void => {
+            if (this.uploadHandle != None) {
+                clearTimeout(this.uploadHandle)
+                this.uploadHandle = None
+            }
+            if (this.data.localPreupdate.value) {
+                this.redoLocalPreUpdate()
+            }
+            for (const command of this.uploadingUpdateCommand) {
+                command.fail(new Error("连接已关闭"))
+            }
+            for (const command of this.unuploadedUpdateCommand) {
+                command.fail(new Error("连接已关闭"))
+            }
         })
     }
 
@@ -138,26 +158,30 @@ export class KittenCloudDataUpdateManager {
 
     public handleUploadingSuccess(this: this): void {
         const firstUpdateCommand: KittenCloudDataUpdateCommand | None = this.uploadingUpdateCommand.shift()
-        if (firstUpdateCommand != None) {
-            this.uploadingStartTimeArray.shift()
-            clearTimeout(this.uploadingTimeoutHandle.shift())
-            if (!this.data.localPreupdate.value) {
-                firstUpdateCommand.execute()
-            }
+        if (firstUpdateCommand == None) {
+            throw new Error("不存在更新命令")
         }
+        this.uploadingStartTimeArray.shift()
+        clearTimeout(this.uploadingTimeoutHandle.shift())
+        if (!this.data.localPreupdate.value) {
+            firstUpdateCommand.execute()
+        }
+        firstUpdateCommand.finish()
     }
 
-    public handleUploadingError(this: this): void {
+    public handleUploadingError(this: this, error?: Error | None): void {
         const firstUpdateCommand: KittenCloudDataUpdateCommand | None = this.uploadingUpdateCommand.shift()
-        if (firstUpdateCommand != None) {
-            this.uploadingStartTimeArray.shift()
-            clearTimeout(this.uploadingTimeoutHandle.shift())
-            if (this.data.localPreupdate.value) {
-                this.withRevokeLocalPreUpdate((): void => {
-                    firstUpdateCommand.revoke()
-                })
-            }
+        if (firstUpdateCommand == None) {
+            throw new Error("不存在更新命令")
         }
+        this.uploadingStartTimeArray.shift()
+        clearTimeout(this.uploadingTimeoutHandle.shift())
+        if (this.data.localPreupdate.value) {
+            this.withRevokeLocalPreUpdate((): void => {
+                firstUpdateCommand.revoke()
+            })
+        }
+        firstUpdateCommand.fail(error ?? new Error("更新上传失败"))
     }
 
     private handleNewUpdateCommand(this: this, command: KittenCloudDataUpdateCommand): void {
@@ -165,10 +189,12 @@ export class KittenCloudDataUpdateManager {
             switch (command.source) {
                 case KittenCloudDataUpdateSource.LOCAL:
                     if (!command.isLegal()) {
+                        command.fail(new Error("非法操作"))
                         return
                     }
                     if (this.data.localPreupdate.value) {
                         if (!command.isEffective()) {
+                            command.finish()
                             return
                         }
                         command.execute()
@@ -191,7 +217,9 @@ export class KittenCloudDataUpdateManager {
                 case KittenCloudDataUpdateSource.CLOUD:
                     const firstUploadingCommand: KittenCloudDataUpdateCommand | None = this.uploadingUpdateCommand.first()
                     if (firstUploadingCommand == None) {
-                        command.execute()
+                        if (command.isLegal() && command.isEffective()) {
+                            command.execute()
+                        }
                     } else if (equal(command.toJSON(), firstUploadingCommand.toJSON())) {
                         this.uploadingUpdateCommand.shift()
                         this.uploadingStartTimeArray.shift()
@@ -204,13 +232,18 @@ export class KittenCloudDataUpdateManager {
                                 clearTimeout(this.uploadingTimeoutHandle.shift())
                             }
                         }
+                        firstUploadingCommand.finish()
                     } else {
                         if (this.data.localPreupdate.value) {
                             this.withRevokeLocalPreUpdate((): void => {
-                                command.execute()
+                                if (command.isLegal() && command.isEffective()) {
+                                    command.execute()
+                                }
                             })
                         } else {
-                            command.execute()
+                            if (command.isLegal() && command.isEffective()) {
+                                command.execute()
+                            }
                         }
                     }
                     break
@@ -254,12 +287,11 @@ export class KittenCloudDataUpdateManager {
         const commandGroup: KittenCloudDataUpdateCommandGroup = this.unuploadedUpdateCommand
         this.unuploadedUpdateCommand = new KittenCloudDataUpdateCommandGroup()
         this.uploadingUpdateCommand.addAll(commandGroup)
-        for (const command of commandGroup) {
+        for (const __command of commandGroup) {
             this.uploadingStartTimeArray.push(this.lastUploadTime)
             if (this.data.uploadTimeout.value > 0) {
                 this.uploadingTimeoutHandle.push(setTimeout((): void => {
-                    this.handleUploadingError()
-                    this.connection.errored.emit(new Error(`${command}失败：上传超时`))
+                    this.handleUploadingError(new Error("上传超时"))
                 }, this.data.uploadTimeout.value))
             } else {
                 this.uploadingTimeoutHandle.push(0)

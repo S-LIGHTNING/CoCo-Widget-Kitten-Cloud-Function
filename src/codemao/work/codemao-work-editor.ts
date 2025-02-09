@@ -1,31 +1,31 @@
 /** 作品使用的编辑器。*/ export class CodemaoWorkEditor {
 
-    /** 作品使用的编辑器为 Nemo。*/
-    static readonly NEMO: CodemaoWorkEditor = new CodemaoWorkEditor("Nemo", "NEMO")
+    /** Nemo。*/
+    public static readonly NEMO: CodemaoWorkEditor = new CodemaoWorkEditor("Nemo", "NEMO")
 
-    /** 作品使用的编辑器为 Kitten。*/
-    static readonly KITTEN: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten", "KITTEN")
+    /** Kitten。*/
+    public static readonly KITTEN: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten", "KITTEN")
 
-    /** 作品使用的编辑器为 Kitten·N。*/
-    static readonly KITTEN_N: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten·N", "NEKO")
+    /** Kitten·N。*/
+    public static readonly KITTEN_N: CodemaoWorkEditor = new CodemaoWorkEditor("Kitten·N", "NEKO")
 
-    /** 作品使用的编辑器为 Kitten·N。“KittenN”为 Kitten·N 的别名 */
-    static readonly KITTENN: CodemaoWorkEditor = CodemaoWorkEditor.KITTEN_N
+    /** Kitten·N。“KittenN”为 Kitten·N 的别名 */
+    public static readonly KITTENN: CodemaoWorkEditor = CodemaoWorkEditor.KITTEN_N
 
-    /** 作品使用的编辑器为 Kitten·N。“NEKO”为 Kitten·N 的开发代号 */
-    static readonly NEKO: CodemaoWorkEditor = CodemaoWorkEditor.KITTEN_N
+    /** Kitten·N。“NEKO”为 Kitten·N 的开发代号 */
+    public static readonly NEKO: CodemaoWorkEditor = CodemaoWorkEditor.KITTEN_N
 
-    /** 作品使用的编辑器为 CoCo。*/
-    static readonly COCO: CodemaoWorkEditor = new CodemaoWorkEditor("CoCo", "COCO")
+    /** CoCo。*/
+    public static readonly COCO: CodemaoWorkEditor = new CodemaoWorkEditor("CoCo", "COCO")
 
-    static from(argument: string | CodemaoWorkEditor): CodemaoWorkEditor {
+    public static from(argument: string | CodemaoWorkEditor): CodemaoWorkEditor {
         if (argument instanceof CodemaoWorkEditor) {
             return argument
         }
         return CodemaoWorkEditor.parse(argument)
     }
 
-    static parse(type: string): CodemaoWorkEditor {
+    public static parse(type: string): CodemaoWorkEditor {
         type = type.toUpperCase()
         if (!(type in editorMap)) {
             throw new Error(`无法识别的作品类型：${type}`)

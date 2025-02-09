@@ -7,5 +7,5 @@ exports.project = {
     author: packageInfo.author,
 	version: packageInfo.version,
     license: packageInfo.license,
-    docs: packageInfo.homepage
+    docs: "https://s-lightning.github.io/Kitten-Cloud-Function/" + packageInfo.version
 }

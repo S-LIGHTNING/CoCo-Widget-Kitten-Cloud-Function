@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "dist/src",
+        "outDir": "dist",
         "target": "ESNext",
         "declaration": true,
         "declarationDir": "dist/types",
@@ -14,7 +14,6 @@
         "strict": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "exactOptionalPropertyTypes": true,
         "noFallthroughCasesInSwitch": false,
         "noImplicitOverride": true,
         "noImplicitReturns": true,

@@ -12,6 +12,7 @@ export class KittenCloudDataUpdateCommandGroup
             if (firstCommand.isEffective()) {
                 break
             } else {
+                firstCommand.finish()
                 this.shift()
                 count++
             }
@@ -26,6 +27,7 @@ export class KittenCloudDataUpdateCommandGroup
             if (lastCommand.isEffective()) {
                 break
             } else {
+                lastCommand.finish()
                 this.pop()
                 count++
             }

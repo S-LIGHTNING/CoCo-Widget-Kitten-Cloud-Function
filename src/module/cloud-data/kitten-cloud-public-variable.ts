@@ -38,12 +38,15 @@ export class KittenCloudPublicVariable extends KittenCloudVariable {
      *
      * @param value 要设置的值
      */
-    public set(this: this, value: KittenCloudVariableValue): void {
+    public set(this: this, value: KittenCloudVariableValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(
-            new KittenCloudPublicVariableSetCommand(
-                KittenCloudDataUpdateSource.LOCAL, this, value
-            )
+        const command = new KittenCloudPublicVariableSetCommand(
+            KittenCloudDataUpdateSource.LOCAL, this, value
         )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 }

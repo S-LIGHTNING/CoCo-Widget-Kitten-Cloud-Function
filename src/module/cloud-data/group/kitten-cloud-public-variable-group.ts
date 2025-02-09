@@ -7,6 +7,9 @@ import { KittenCloudPublicVariableSetCommand } from "../update/command/kitten-cl
 import { KittenCloudDataUpdateSource } from "../update/kitten-cloud-data-update-source"
 import { KittenCloudVariableGroup } from "./kitten-cloud-variable-group"
 
+/**
+ * 公有云变量组。
+ */
 export class KittenCloudPublicVariableGroup extends KittenCloudVariableGroup<KittenCloudPublicVariable> {
 
     protected override dataTypeName: string = "公有云变量"
@@ -32,7 +35,7 @@ export class KittenCloudPublicVariableGroup extends KittenCloudVariableGroup<Kit
                 errorArray.push(new Error(`无法识别更新数据格式：${message}`))
                 continue
             }
-            const data: KittenCloudPublicVariable | None = this.dataMap.get(singleMessage.cvid)
+            const data: KittenCloudPublicVariable | None = this.dataRecord[singleMessage.cvid]
             if (data == None) {
                 errorArray.push(new Error(`找不到 cvid 为 ${singleMessage.cvid} 的公有云变量`))
                 continue

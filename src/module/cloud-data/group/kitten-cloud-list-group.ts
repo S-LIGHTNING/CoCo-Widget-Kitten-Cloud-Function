@@ -14,6 +14,9 @@ import { KittenCloudListUnshiftCommand } from "../update/command/kitten-cloud-li
 import { KittenCloudDataUpdateSource } from "../update/kitten-cloud-data-update-source"
 import { KittenCloudDataGroup } from "./kitten-cloud-data-group"
 
+/**
+ * 云列表组。
+ */
 export class KittenCloudListGroup extends KittenCloudDataGroup<KittenCloudList> {
 
     protected override dataTypeName: string = "云列表"
@@ -51,7 +54,7 @@ export class KittenCloudListGroup extends KittenCloudDataGroup<KittenCloudList> 
         const result: Record<string, KittenCloudDataUpdateCommandGroup> = {}
         const errorArray: Error[] = []
         for (const cvid in message) {
-            const data: KittenCloudList | None = this.dataMap.get(cvid)
+            const data: KittenCloudList | None = this.dataRecord[cvid]
             if (data == None) {
                 errorArray.push(new Error(`未找到数据：${cvid}`))
                 continue

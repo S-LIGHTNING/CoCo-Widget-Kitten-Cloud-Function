@@ -49,13 +49,16 @@ export class KittenCloudPrivateVariable extends KittenCloudVariable {
      *
      * @param value 要设置的值
      */
-    public set(this: this, value: KittenCloudVariableValue): void {
+    public set(this: this, value: KittenCloudVariableValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(
-            new KittenCloudPrivateVariableSetCommand(
-                KittenCloudDataUpdateSource.LOCAL, this, value
-            )
+        const command = new KittenCloudPrivateVariableSetCommand(
+            KittenCloudDataUpdateSource.LOCAL, this, value
         )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -68,8 +71,11 @@ export class KittenCloudPrivateVariable extends KittenCloudVariable {
     public getRankingList(
         this: this, limit: number, order: number
     ): Promise<KittenCloudPrivateVariableRankingListItemObject[]> {
+        if (!Number.isInteger(limit)) {
+            throw new Error(`限制必须为整数，得到${limit}`)
+        }
         if (limit <= 0) {
-            throw new Error("限制必须大于 0")
+            throw new Error(`限制必须大于 0，得到${limit}`)
         }
         if (order != 1 && order != -1) {
             throw new Error("顺序只能为 1（顺序） 或 -1（逆序）")

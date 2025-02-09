@@ -6,6 +6,9 @@ import { KittenCloudVariableValue } from "../kitten-cloud-variable"
 import { KittenCloudDataUpdateCommandGroup } from "../update/command/kitten-cloud-data-update-command-group"
 import { KittenCloudVariableGroup } from "./kitten-cloud-variable-group"
 
+/**
+ * 私有云变量组。
+ */
 export class KittenCloudPrivateVariableGroup extends KittenCloudVariableGroup<KittenCloudPrivateVariable> {
 
     private getRankingListArray: KittenCloudPrivateVariable[]

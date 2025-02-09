@@ -1,6 +1,5 @@
 import { KittenCloudFunction } from "../../../kitten-cloud-function"
 import { None } from "../../../utils/other"
-import { Signal } from "../../../utils/signal"
 import { KittenCloudFunctionConfigLayer, KittenCloudConfigObject } from "../../kitten-cloud-function-config-layer"
 import { KittenCloudSendMessageType } from "../../network/kitten-cloud-send-message-type"
 import { KittenCloudData } from "../kitten-cloud-data"
@@ -14,18 +13,17 @@ export type KittenCloudDataInfoObject = {
 }
 
 /**
- * 云数据组，用于管理云数据实例。
+ * 云数据组，用于管理云数据实例。具有收集和分发云数据更新数据的功能。
  */
 export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = KittenCloudData>
     extends KittenCloudFunctionConfigLayer {
 
     private connecting: boolean = true
-    private readonly connected: Signal<void>
 
     public readonly array: DATA_TYPE[]
 
     protected readonly dataArray: DATA_TYPE[]
-    protected readonly dataMap: Map<string, DATA_TYPE>
+    protected readonly dataRecord: Record<string, DATA_TYPE>
 
     protected readonly uploadCount: number[][]
 
@@ -37,9 +35,8 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
         config: KittenCloudConfigObject
     ) {
         super(connection, config)
-        this.connected = new Signal()
         this.dataArray = []
-        this.dataMap = new Map()
+        this.dataRecord = {}
         this.array = this.dataArray
         this.uploadCount = []
     }
@@ -47,14 +44,14 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
     public update(this: this, data: KittenCloudDataInfoObject[]): void {
         this.connecting = false
         for (const item of data) {
-            const data: DATA_TYPE | None = this.dataMap.get(item.cvid)
+            const data: DATA_TYPE | None = this.dataRecord[item.cvid]
             if (data == null) {
                 const newData: DATA_TYPE = this.createData(
                     item.cvid, item.name, item.value
                 )
                 this.dataArray.push(newData)
-                this.dataMap.set(item.name, newData)
-                this.dataMap.set(item.cvid, newData)
+                this.dataRecord[item.name] = newData
+                this.dataRecord[item.cvid] = newData
                 newData.updateManager.neededToUpload.connect((): void => {
                     this.handleUpload()
                 })
@@ -62,7 +59,6 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
                 data.update(item.value)
             }
         }
-        this.connected.emit()
     }
 
     protected abstract createData(
@@ -78,9 +74,9 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
      */
     public async get(this: this, index: string): Promise<DATA_TYPE> {
         if (this.connecting) {
-            await this.connected.wait()
+            await this.connection.waitOpen()
         }
-        const data: DATA_TYPE | None = this.dataMap.get(index)
+        const data: DATA_TYPE | None = this.dataRecord[index]
         if (data == null) {
             throw new Error(`获取${this.dataTypeName}失败：${this.dataTypeName} ${index} 不存在`)
         }
@@ -94,7 +90,7 @@ export abstract class KittenCloudDataGroup<DATA_TYPE extends KittenCloudData = K
      */
     public async getAll(this: this): Promise<DATA_TYPE[]> {
         if (this.connecting) {
-            await this.connected.wait()
+            await this.connection.waitOpen()
         }
         return this.dataArray
     }

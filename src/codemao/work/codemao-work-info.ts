@@ -1,11 +1,13 @@
 import Promise_any from "@ungap/promise-any"
 
-import { enumerable, None } from "../../utils/other"
+import { enumerable } from "../../utils/other"
 import { getKittenNWorkPublicResource as getKitten_NWorkPublicResource, getKittenWorkPublicResource, getNemoWorkPublicResource, getWorkDetail, getWorkInfo } from "../codemao-community-api"
 import { CodemaoUser } from "../user/codemao-user"
 import { CodemaoUserInfoObject } from "../user/codemao-user-info"
 import { CodemaoUserSex } from "../user/codemao-user-sex"
 import { CodemaoWorkEditor } from "./codemao-work-editor"
+import { CodemaoWebSocket } from "../codemao-environment"
+import { CodemaoUserBadge } from "../user/codemao-user-badge"
 
 /**
  * 作品信息对象。
@@ -91,20 +93,20 @@ async function testWorkEditorByKittenCloud(
         [CodemaoWorkEditor.KITTEN_N.symbol]: {
             authorization_type: 5,
             stag: 3,
-            token: "获取失败",
+            token: "",
             EIO: 3,
             transport: "websocket"
         },
     }
 
     const url: string = await (async (): Promise<string> => {
-        const scheme: "wss" | "ws" = typeof global == "object" || window.location.protocol == "https:" ? "wss" : "ws"
+        const scheme: "wss" | "ws" = typeof global == "object" || window.location.protocol != "http:" ? "wss" : "ws"
         const host: string = ["socketcv", "codemao", "cn"].join(".")
         const port = 9096
         const path = "/cloudstorage/"
-        const particularParams: object | None = KITTEN_WEB_SOCKET_URL_PARAMS[(await editor).symbol]
-        if (particularParams == None) {
-            throw new Error(`不支持的作品类型: ${(await editor).name}`)
+        const particularParams: object | undefined = KITTEN_WEB_SOCKET_URL_PARAMS[editor.symbol]
+        if (particularParams == null) {
+            throw new Error(`不支持的作品类型: ${editor.name}`)
         }
         const params = `session_id=${await info.id}&${
             Object.entries(particularParams)
@@ -113,22 +115,23 @@ async function testWorkEditorByKittenCloud(
         }`
         return `${scheme}://${host}:${port}${path}?${params}`
     })()
-    const socket = new WebSocket(url)
+    const socket: CodemaoWebSocket = await CodemaoWebSocket(url)
     return new Promise((
         resolve: (value: Pick<Required<CodemaoWorkInfoObject>, "editor">) => void,
-        reject: (reason: Event) => void
+        reject: (reason: Error) => void
     ): void => {
-        socket.addEventListener("open", (): void => {
+        socket.onopen = (): void => {
             try {
+                // @ts-ignore
                 socket.close()
             } catch (error) {
                 console.error(error)
             }
             resolve({ editor })
-        })
-        socket.addEventListener("error", (event: Event): void => {
-            reject(event)
-        })
+        }
+        socket.onerror = async (): Promise<void> => {
+            reject(new Error(`通过云功能连接试探作品 ${await info.id} 编辑器类型为 ${editor.name} 失败：WebSocket 出错`))
+        }
     })
 }
 
@@ -174,7 +177,7 @@ export class CodemaoWorkInfo {
     @enumerable(false)
     private get workInfo(): Promise<WorkInfoObject> {
         return (async (): Promise<WorkInfoObject> => {
-            if (this.__workInfo == None) {
+            if (this.__workInfo == null) {
                 Object.defineProperty(this, "__workInfo", {
                     value: (async (): Promise<WorkInfoObject> => {
                         const workInfo = await getWorkInfo(await this.id)
@@ -186,7 +189,7 @@ export class CodemaoWorkInfo {
                                 nickname: workInfo.user_info.nickname,
                                 avatarURL: workInfo.user_info.avatar,
                                 description: workInfo.user_info.description,
-                                level: workInfo.user_info.author_level
+                                badge: CodemaoUserBadge.parse(workInfo.user_info.author_level)
                             }),
                             editor: CodemaoWorkEditor.parse(workInfo.type),
                             description: workInfo.description,
@@ -216,7 +219,7 @@ export class CodemaoWorkInfo {
     @enumerable(false)
     private get workDetail(): Promise<WorkDetailObject> {
         return (async(): Promise<WorkDetailObject> => {
-            if (this.__workDetail == None) {
+            if (this.__workDetail == null) {
                 Object.defineProperty(this, "__workDetail", {
                     value: (async (): Promise<WorkDetailObject> => {
                         const { workInfo, userInfo, qrcodeUrl, allowFork } = await getWorkDetail(await this.id)
@@ -252,7 +255,7 @@ export class CodemaoWorkInfo {
     @enumerable(false)
     private get nemoWorkPublicResource(): Promise<NemoPublicResourceObject> {
         return (async(): Promise<NemoPublicResourceObject> => {
-            if (this.__nemoPublicResource == None) {
+            if (this.__nemoPublicResource == null) {
                 Object.defineProperty(this, "__nemoPublicResource", {
                     value: (async (): Promise<NemoPublicResourceObject> => {
                         const source = await getNemoWorkPublicResource(await this.id)
@@ -688,23 +691,32 @@ export class CodemaoWorkInfo {
      * @param info 已知的作品信息。
      */
     public constructor(info: CodemaoWorkInfoObject) {
+        for (const key in this) {
+            if (key.startsWith("__") && this[key] == Node) {
+                Object.defineProperty(this, key, {
+                    value: undefined,
+                    enumerable: false,
+                    configurable: true
+                })
+            }
+        }
         this.setCache(info)
     }
 
     public async setCache(info: CodemaoWorkInfoObject): Promise<void> {
         for (let key in info) {
             let value: typeof info[keyof typeof info] = info[key as keyof typeof info]
-            if (value != None) {
+            if (value != null) {
                 if (value instanceof CodemaoUser) {
-                    if (!("__author" in this)) {
-                        this.__author = Promise.resolve(new CodemaoUser({}))
+                    if (this.__author == null) {
+                        this.__author = Promise.resolve(new CodemaoUser())
                     }
                     const userInfoObject: CodemaoUserInfoObject = {}
-                    for (const key in value) {
-                        if (`__${key}` in value) {
+                    for (const key in value.info) {
+                        if (`__${key}` in value.info) {
                             try {
                                 // @ts-ignore
-                                userInfoObject[key] = await value[`__${key}`]
+                                userInfoObject[key] = await value.info[`__${key}`]
                             } catch (error) {
                                 console.error(error)
                             }

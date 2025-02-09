@@ -4,7 +4,7 @@ declare global {
     var KittenCloudFunction: typeof __KittenCloudFunction
 }
 
-if (typeof exports == "object" && typeof module != "undefined") {
+if (typeof module == "object" && typeof exports != "undefined") {
     module.exports = __KittenCloudFunction
 } else if (typeof globalThis != "undefined") {
     globalThis.KittenCloudFunction = __KittenCloudFunction

@@ -1,10 +1,11 @@
 const webpack = require("webpack")
 const path = require("path")
 const TerserPlugin = require("terser-webpack-plugin")
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
 
 module.exports = function (env, argv) {
     /** @type {webpack.Configuration["mode"]} */
-    const mode = "production"
+    const mode = env.develop ? "development" : "production"
     const config = {
         mode: mode,
         /** @type {webpack.Configuration["stats"]} */
@@ -18,7 +19,6 @@ module.exports = function (env, argv) {
             const newEntry = {}
             for (const name in entry) {
                 newEntry[name] = entry[name]
-                // @ts-ignore
                 if (mode == "production") {
                     newEntry[name.replace(/(?=\.[a-z]+$)/, ".min")] = entry[name]
                 }
@@ -26,7 +26,7 @@ module.exports = function (env, argv) {
             return newEntry
         },
         output: {
-            path: path.resolve(__dirname, "dist", "web-packed"),
+            path: path.resolve(__dirname, mode == "development" ? "out" : "dist"),
             filename: "[name]",
             environment: {
                 arrowFunction: false
@@ -58,7 +58,12 @@ module.exports = function (env, argv) {
                 }, {
                     test: /\.tsx?$/,
                     exclude: /node_modules/,
-                    use: "ts-loader"
+                    use: {
+                        loader: "ts-loader",
+                        options: {
+                            transpileOnly: true
+                        }
+                    }
                 }
             ]
         },
@@ -70,9 +75,17 @@ module.exports = function (env, argv) {
         externals: {
             "axios": "axios",
             "diff": "diff",
-            "crypto-js": "crypto-js"
+            "crypto-js": "crypto"
         },
-        plugins: []
+        plugins: [
+            new ForkTsCheckerWebpackPlugin(),
+            new webpack.IgnorePlugin({
+                resourceRegExp: /^(fs|os|path|websocket|appdirsjs)$/
+            }),
+            new webpack.DefinePlugin({
+                global: "void 0"
+            })
+        ]
     }
     return config
 }

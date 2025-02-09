@@ -41,7 +41,7 @@ export abstract class KittenCloudVariable extends KittenCloudData {
         this.changed = new Signal()
     }
 
-    public abstract set(value: KittenCloudVariableValue): void
+    public abstract set(value: KittenCloudVariableValue): Promise<void>
 
     /**
      * 获取云变量的值。

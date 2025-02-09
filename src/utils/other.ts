@@ -13,7 +13,7 @@ export function equal(a: any, b: any): boolean {
             if (a.length != b.length) {
                 return false
             }
-            for (let i = 0; i < a.length; i++) {
+            for (let i: number = 0; i < a.length; i++) {
                 if (!equal(a[i], b[i])) {
                     return false
                 }

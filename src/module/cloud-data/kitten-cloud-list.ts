@@ -217,11 +217,16 @@ export class KittenCloudList extends KittenCloudData {
      *
      * @param value 添加的新的项的值
      */
-    public push(this: this, value: KittenCloudListItemValue): void {
+    public push(this: this, value: KittenCloudListItemValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(new KittenCloudListPushCommand(
+        const command = new KittenCloudListPushCommand(
             KittenCloudDataUpdateSource.LOCAL, this, value
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -229,11 +234,16 @@ export class KittenCloudList extends KittenCloudData {
      *
      * @param value 添加的新的项的值
      */
-    public unshift(this: this, value: KittenCloudListItemValue): void {
+    public unshift(this: this, value: KittenCloudListItemValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(new KittenCloudListUnshiftCommand(
+        const command = new KittenCloudListUnshiftCommand(
             KittenCloudDataUpdateSource.LOCAL, this, value
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -242,20 +252,30 @@ export class KittenCloudList extends KittenCloudData {
      * @param index 位置索引，从 0 开始
      * @param value 添加的新的项的值
      */
-    public add(this: this, index: number, value: KittenCloudListItemValue): void {
+    public add(this: this, index: number, value: KittenCloudListItemValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(new KittenCloudListAddCommand(
+        const command = new KittenCloudListAddCommand(
             KittenCloudDataUpdateSource.LOCAL, this, index, value
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
      * 移除云列表最后一项。
      */
-    public pop(this: this): void {
-        this.updateManager.addUpdateCommand(new KittenCloudListPopCommand(
+    public pop(this: this): Promise<void> {
+        const command = new KittenCloudListPopCommand(
             KittenCloudDataUpdateSource.LOCAL, this
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -263,19 +283,29 @@ export class KittenCloudList extends KittenCloudData {
      *
      * @param index 位置索引，从 0 开始
      */
-    public remove(index: number): void {
-        this.updateManager.addUpdateCommand(new KittenCloudListRemoveCommand(
+    public remove(index: number): Promise<void> {
+        const command = new KittenCloudListRemoveCommand(
             KittenCloudDataUpdateSource.LOCAL, this, index
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
      * 清空云列表。
      */
-    public empty(this: this): void {
-        this.updateManager.addUpdateCommand(new KittenCloudListEmptyCommand(
+    public empty(this: this): Promise<void> {
+        const command = new KittenCloudListEmptyCommand(
             KittenCloudDataUpdateSource.LOCAL, this
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -283,11 +313,16 @@ export class KittenCloudList extends KittenCloudData {
      *
      * @param value 新的值
      */
-    public replaceLast(this: this, value: KittenCloudListItemValue): void {
+    public replaceLast(this: this, value: KittenCloudListItemValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(new KittenCloudListReplaceLastCommand(
+        const command = new KittenCloudListReplaceLastCommand(
             KittenCloudDataUpdateSource.LOCAL, this, value
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -296,11 +331,16 @@ export class KittenCloudList extends KittenCloudData {
      * @param index 位置索引，从 0 开始
      * @param value 新的值
      */
-    public replace(index: number, value: KittenCloudListItemValue): void {
+    public replace(index: number, value: KittenCloudListItemValue): Promise<void> {
         value = this.singleValueProcess(value)
-        this.updateManager.addUpdateCommand(new KittenCloudListReplaceCommand(
+        const command = new KittenCloudListReplaceCommand(
             KittenCloudDataUpdateSource.LOCAL, this, index, value
-        ))
+        )
+        this.updateManager.addUpdateCommand(command)
+        command.promise.catch((error: Error): void => {
+            this.connection.errored.emit(error)
+        })
+        return command.promise
     }
 
     /**
@@ -310,7 +350,7 @@ export class KittenCloudList extends KittenCloudData {
      *
      * @param source 源列表
      */
-    public copyFrom(this: this, source: KittenCloudList | KittenCloudListItemValue[]): void {
+    public copyFrom(this: this, source: KittenCloudList | KittenCloudListItemValue[]): Promise<void> {
         if (source instanceof KittenCloudList) {
             source = source.value
         }
@@ -323,6 +363,7 @@ export class KittenCloudList extends KittenCloudData {
         for (const command of diff) {
             this.updateManager.addUpdateCommand(command)
         }
+        return Promise.all(diff).then((): void => {})
     }
 
     /**

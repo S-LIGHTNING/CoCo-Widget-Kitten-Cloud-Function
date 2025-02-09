@@ -17,20 +17,22 @@ import { None } from "./utils/other"
 import { KittenCloudListGroup } from "./module/cloud-data/group/kitten-cloud-list-group"
 
 export let __diff: typeof import("diff") | None = None
-let __importDiff: Promise<typeof import("diff")> | None = None
+let __importDiff: Promise<void> | None = None
 
 /**
  * 源码云功能主类，用于管理源码云的连接、数据、事件等。
  */
 export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
 
-    private static __caughtInstance: Map<number, KittenCloudFunction> = new Map()
+    private static __caughtInstance: Record<number, KittenCloudFunction> = {}
     private static __caught?: Signal<KittenCloudFunction>
 
     /**
      * 当从全局 WebSocket 中捕获到源码云的连接，会将其转换为 KittenCloudFunction 实例并通过该信号通知。
      *
      * 该功能会污染全局 WebSocket，仅在该信号被访问时才会启用。
+     *
+     * 仅在浏览器中可用。
      */
     public static get caught(): Signal<KittenCloudFunction> {
         if (KittenCloudFunction.__caught == null) {
@@ -56,10 +58,10 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
                 url.pathname == "/cloudstorage/"
             ) {
                 let workID = parseInt(url.searchParams.get("session_id") ?? "0")
-                let instance: KittenCloudFunction | undefined = KittenCloudFunction.__caughtInstance.get(workID)
+                let instance: KittenCloudFunction | undefined = KittenCloudFunction.__caughtInstance[workID]
                 if (instance == null) {
                     instance = new KittenCloudFunction(socket)
-                    KittenCloudFunction.__caughtInstance.set(workID, instance)
+                    KittenCloudFunction.__caughtInstance[workID] = instance
                 } else {
                     instance.socket.changeWebSocket(socket)
                 }
@@ -172,10 +174,15 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
         this.socket.errored.connect((error: unknown): void => {
             this.errored.emit(error)
         })
-        this.onlineUserNumber = new Promise((resolve, reject) => {
+        this.onlineUserNumber = new Promise(
+            (
+                resolve: (value: KittenCloudOnlineUserNumber) => void,
+                reject: (reason: unknown) => void
+            ): void => {
             this.onlineUserNumberResolve = resolve
             this.onlineUserNumberReject = reject
         })
+        this.onlineUserNumber.catch((__ignore: unknown): void => {})
         this.socket.errored.connect((error: unknown): void => {
             this.onlineUserNumberReject?.(error)
         })
@@ -183,12 +190,40 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
         this.publicVariable = new KittenCloudPublicVariableGroup(this)
         this.list = new KittenCloudListGroup(this)
         if (__importDiff == None) {
-            __importDiff = (async (): Promise<typeof import("diff")> => {
-                return __diff = await import("diff")
+            __importDiff = (async (): Promise<void> => {
+                __diff = await import("diff")
             })()
         }
     }
 
+    /**
+     * 等待连接打开，如果连接打开时出错则抛出异常。
+     */
+    public waitOpen(this: this): Promise<void> {
+        return new Promise(
+            (
+                resolve: (value: void) => void,
+                reject: (reason: unknown) => void
+            ): void => {
+                const onOpen: () => void = (): void => {
+                    this.opened.disconnect(onOpen)
+                    this.opened.disconnect(onError)
+                    resolve()
+                }
+                const onError: (error: unknown) => void = (error: unknown): void => {
+                    this.opened.disconnect(onOpen)
+                    this.opened.disconnect(onError)
+                    reject(error)
+                }
+                this.opened.connect(onOpen)
+                this.errored.connect(onError)
+            }
+        )
+    }
+
+    /**
+     * 关闭该连接。
+     */
     public close(this: this): void {
         this.socket.close()
     }
@@ -248,8 +283,8 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
                         if (__diff == None) {
                             await __importDiff
                         }
-                        this.opened.emit()
                     }
+                    this.opened.emit()
                     break
                 case KittenCloudReceiveMessageType.UPDATE_PRIVATE_VARIABLE:
                     this.privateVariable.handleCloudUpdate(data)

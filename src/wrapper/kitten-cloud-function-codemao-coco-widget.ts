@@ -15,7 +15,12 @@ import { Color, InvisibleWidget, SLIGHTNINGExport, SLIGHTNINGTypesObject, SLIGHT
 import { KittenCloudAutoReconnectIntervalTime, KittenCloudCacheTime, KittenCloudFunctionConfigLayer, KittenCloudLocalPreupdate, KittenCloudUploadIntervalTime } from "./kitten-cloud-function-package"
 const { project } = require("../../project")
 
-declare const KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED: boolean
+declare const KITTEN_CLOUD_FUNCTION_DEVELOP: boolean
+declare const KITTEN_CLOUD_FUNCTION_ALLOW: {
+    USER: string,
+    USING_WORK: string,
+    CONNECTING_WORK: string,
+} | None
 
 const VariableValueType: ValueType[] = [ ValueType.NUMBER, ValueType.STRING ]
 const ListItemValueType: ValueType[] = [ ValueType.NUMBER, ValueType.STRING ]
@@ -24,10 +29,13 @@ const types: SLIGHTNINGTypesObject = {
     type: "SLIGHTNING_KITTEN_CLOUD_FUNCTION_WIDGET",
     title: project.name,
     author: project.author,
+    category: "编程猫",
     icon: "icon-widget-cloud-room",
-	version: project.version + (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED ? " (modification restricted)" : ""),
+	version: project.version,
     license: project.license,
-    docs: project.docs,
+    docs: {
+        url: project.docs
+    },
     isInvisibleWidget: true,
     isGlobalWidget: true,
     properties: [],
@@ -131,11 +139,16 @@ const types: SLIGHTNINGTypesObject = {
             ],
             valueType: ValueType.ARRAY
         }, {
-            line: "用户信息",
+            line: "用户",
             color: Color.RED
         }, {
-            key: "isUserLogged",
+            key: "isUserLoggedIn",
             label: "用户已登录",
+            params: [],
+            valueType: ValueType.BOOLEAN
+        }, {
+            key: "userLogIn",
+            label: "用户登录",
             params: [],
             valueType: ValueType.BOOLEAN
         }, {
@@ -776,6 +789,11 @@ const types: SLIGHTNINGTypesObject = {
             line: "已弃用",
             deprecated: true
         }, {
+            key: "isUserLogged",
+            label: "用户已登录",
+            params: [],
+            valueType: ValueType.BOOLEAN
+        }, {
             key: "getConnectionConfigValue",
             label: "获取连接",
             params: [
@@ -1142,8 +1160,10 @@ const types: SLIGHTNINGTypesObject = {
     ]
 }
 
-const userMap = new Map<number, CodemaoUser>()
-userMap.set(0, KittenCloudFunction.user)
+let hasOutputVersionInfo: boolean = false
+
+const userRecord: Record<string, CodemaoUser> = {}
+userRecord[0] = KittenCloudFunction.user
 
 class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWidget) {
 
@@ -1162,8 +1182,20 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
             this.close()
             this.warn("上一个连接未断开，已自动断开")
         }
-        if (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED) {
-            this.warn("当前版本为修改受限版版，只能修改自己作品的云数据")
+        if (!hasOutputVersionInfo) {
+            if (KITTEN_CLOUD_FUNCTION_DEVELOP) {
+                this.log(`${project.name} ${project.version}（开发调试版）`)
+                if (!/^https?:\/\/(coco\.codemao\.cn\/editor\/editor-player\.html|cp\.cocotais\.cn\/((pptui)\/?)?)$/.test(location.origin + location.pathname)) {
+                    const message = `不要将 ${project.name} ${project.version}（开发调试版）用于生产环境中！`
+                    this.error(new Error(message))
+                    alert(message)
+                }
+            } else if (KITTEN_CLOUD_FUNCTION_ALLOW == None) {
+                this.log(`${project.name} v${project.version}（修改受限版版）`)
+            } else {
+                this.log(`${project.name} v${project.version}（用户 ${KITTEN_CLOUD_FUNCTION_ALLOW.USER} 在 ${KITTEN_CLOUD_FUNCTION_ALLOW.USING_WORK} 中连接 ${KITTEN_CLOUD_FUNCTION_ALLOW.CONNECTING_WORK} 的专用版）`)
+            }
+            hasOutputVersionInfo = true
         }
         this.isOpened = false
         this.connection = new KittenCloudFunction(workID)
@@ -1247,9 +1279,38 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     private async checkModifiable(this: this): Promise<void> {
-        if (KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED) {
+        if (KITTEN_CLOUD_FUNCTION_DEVELOP) {
+            return
+        } else if (KITTEN_CLOUD_FUNCTION_ALLOW != None) {
+            let user: number, usingWork: number, connectingWork: number
+            let message: string = ""
+            if (location.protocol != "file:") {
+                if (location.pathname == "/editor/editor-player.html" || location.pathname == "/player") {
+                    usingWork = parseInt(new URLSearchParams(location.hash).get("#id") ?? "")
+                    user = await KittenCloudFunction.user.info.id
+                } else {
+                    usingWork = parseInt(location.pathname.split("/").pop() ?? "")
+                    user = await (await new CodemaoWork({ id: usingWork }).info.author).info.id
+                }
+                if (!KITTEN_CLOUD_FUNCTION_ALLOW.USER.split(",").includes(String(user))) {
+                    message += "，仅用户 " + KITTEN_CLOUD_FUNCTION_ALLOW.USER + " 可用"
+                }
+                if (location.hostname != "cp.cocotais.cn") {
+                    if (!KITTEN_CLOUD_FUNCTION_ALLOW.USING_WORK.split(",").includes(String(usingWork))) {
+                        message += "，仅在 CoCo 作品 " + KITTEN_CLOUD_FUNCTION_ALLOW.USING_WORK + " 可用"
+                    }
+                }
+            }
+            connectingWork = await this.getConnection().work.info.id
+            if (!KITTEN_CLOUD_FUNCTION_ALLOW.CONNECTING_WORK.split(",").includes(String(connectingWork))) {
+                message += "，仅可连接作品 " + KITTEN_CLOUD_FUNCTION_ALLOW.CONNECTING_WORK + ""
+            }
+            if (message != "") {
+                throw new Error(`当前版本为专用版${message}`)
+            }
+        } else {
             let expectedWorkAuthorID: number | None = None
-            if (location.pathname == "/editor/editor-player.html") {
+            if (location.pathname == "/editor/editor-player.html" || location.pathname == "/player") {
                 expectedWorkAuthorID = await KittenCloudFunction.user.info.id
             } else {
                 const thisWorkID: number = parseInt(location.pathname.split("/").pop() ?? "")
@@ -1342,26 +1403,35 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
         return Promise.all((await variable.getRankingList(limit, parseInt(order))).map(
             async (item: KittenCloudPrivateVariableRankingListItemObject): Promise<{ "值": number; "用户": number} > => {
-                userMap.set(await item.user.info.id, item.user)
+                const user: CodemaoUser = userRecord[await item.user.info.id] ?? new CodemaoUser()
+                user.info.setCache({
+                    id: await item.user.info.id,
+                    nickname: await item.user.info.nickname,
+                    avatarURL: await item.user.info.avatarURL
+                })
                 return { "值": item.value, "用户": await item.user.info.id }
             }
         ))
     }
 
-    public async isUserLogged(this: this): Promise<boolean> {
+    public async isUserLoggedIn(this: this): Promise<boolean> {
         try {
             await KittenCloudFunction.user.info.id
             return true
-        } catch (error) {
+        } catch (__ignore) {
             return false
         }
     }
 
+    public async userLogIn(this: this): Promise<boolean> {
+        return CodemaoUser.userLogInInBrowser()
+    }
+
     public async getUserInfo(this: this, userID: number, type: string): Promise<number | string> {
-        let user: CodemaoUser | None = userMap.get(userID)
+        let user: CodemaoUser | None = userRecord[userID]
         if (user == None) {
             user = new CodemaoUser({ id: userID })
-            userMap.set(userID, user)
+            userRecord[userID] = user
         }
         switch (type) {
             case "id": return await user.info.id
@@ -1373,7 +1443,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
             case "description": return await user.info.description
             case "doing": return await user.info.doing
             case "email": return await user.info.email
-            case "level": return await user.info.level
+            case "badge": return (await user.info.badge).name
             case "grade": return await user.info.grade
             case "birthday": return (await user.info.birthday).toLocaleString()
             case "sex": return (await user.info.sex).name
@@ -1794,6 +1864,22 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+    /**
+     * @deprecated
+     */
+    public async isUserLogged(this: this): Promise<boolean> {
+        try {
+            await KittenCloudFunction.user.info.id
+            return true
+        } catch (error) {
+            return false
+        }
+    }
+
+
+    /**
+     * @deprecated
+     */
     public setConnectionConfig(this: this, type: string, value: number | boolean): void {
         const connection: KittenCloudFunction = this.getConnection()
         switch (type) {
@@ -1828,6 +1914,10 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public getPrivateVariableConfigValue(this: this, type: string): number | boolean {
         const group: KittenCloudPrivateVariableGroup = this.getConnection().privateVariable
         switch (type) {
@@ -1839,6 +1929,10 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public setPrivateVariableConfig(this: this, type: string, value: number | boolean): void {
         const group: KittenCloudPrivateVariableGroup = this.getConnection().privateVariable
         switch (type) {
@@ -1864,6 +1958,10 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public getPublicVariableConfigValue(this: this, type: string): number | boolean {
         const group: KittenCloudPublicVariableGroup = this.getConnection().publicVariable
         switch (type) {
@@ -1875,6 +1973,10 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public setPublicVariableConfig(this: this, type: string, value: number | boolean): void {
         const group: KittenCloudPublicVariableGroup = this.getConnection().publicVariable
         switch (type) {
@@ -1900,6 +2002,10 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public getListConfigValue(this: this, type: string): number | boolean {
         const group: KittenCloudListGroup = this.getConnection().list
         switch (type) {
@@ -1912,6 +2018,10 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         }
     }
 
+
+    /**
+     * @deprecated
+     */
     public setListConfig(this: this, type: string, value: number | boolean): void {
         const group: KittenCloudListGroup = this.getConnection().list
         switch (type) {

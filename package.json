@@ -1,17 +1,23 @@
 {
     "name": "kitten-cloud-function",
-    "version": "1.1.1-alpha.3",
+    "version": "1.2.0",
     "description": "用于编程猫源码云功能（云变量、云列表等）的客户端工具",
-    "main": "./dist/src/src/wrapper/kitten-cloud-function-npm-package.js",
+    "main": "./dist/cjs/src/wrapper/kitten-cloud-function-npm-package.js",
+    "module": "./dist/esm/src/wrapper/kitten-cloud-function-npm-package.js",
     "types": "./dist/types/src/wrapper/kitten-cloud-function-npm-package.d.ts",
-    "browser": "./dist/src/src/wrapper/kitten-cloud-function-browser.js",
     "bin": {
-        "Kitten-Cloud-Function": "./dist/src/src/wrapper/kitten-cloud-function-command-line-interface.js",
-        "kcf": "./dist/src/src/wrapper/kitten-cloud-function-command-line-interface.js"
+        "Kitten-Cloud-Function": "./dist/cjs/src/wrapper/kitten-cloud-function-command-line-interface.js",
+        "kcf": "./dist/cjs/src/wrapper/kitten-cloud-function-command-line-interface.js"
     },
     "directories": {
         "doc": "docs"
     },
+    "files": [
+        "dist",
+        "LICENSE",
+        "package.json",
+        "README.md"
+    ],
     "repository": {
         "type": "git",
         "url": "git+https://github.com/s-lightning/Kitten-Cloud-Function.git"
@@ -41,36 +47,45 @@
     "bugs": {
         "url": "https://github.com/s-lightning/Kitten-Cloud-Function/issues"
     },
-    "homepage": "https://s-lightning.github.io/Kitten-Cloud-Function/",
+    "homepage": "https://github.com/S-LIGHTNING/Kitten-Cloud-Function",
     "scripts": {
+        "dev:coco-widget": "webpack --config coco-widget.webpack.config.js --env noModificationRestriction --env develop --watch",
+        "dev:package": "tsc --outDir dist/cjs --module commonjs --moduleResolution node --watch",
         "build:coco-widget": "webpack --config coco-widget.webpack.config.js",
-        "build:coco-widget--no-modification-restriction": "webpack --config coco-widget.webpack.config.js --env noModificationRestriction",
         "build:browser": "webpack --config browser.webpack.config.js",
         "build:user-script": "webpack --config user-script.webpack.config.js",
-        "build:package": "tsc --module commonjs --moduleResolution node",
-        "build:docs": "typedoc --sort static-first --sort source-order --plugin typedoc-material-theme",
-        "build": "npm run build:coco-widget && npm run build:coco-widget--no-modification-restriction && npm run build:browser && npm run build:user-script && npm run build:package && npm run build:docs"
+        "build:package": "tsc --outDir dist/cjs --target ES2017 --module commonjs --moduleResolution node && tsc --outDir dist/esm --target ES2017",
+        "build:docs": "typedoc --sort static-first --sort source-order",
+        "build": "npm run build:coco-widget && npm run build:browser && npm run build:package && npm run build:docs"
     },
     "dependencies": {
+        "@johnls/readline-password": "^1.1.0",
+        "@slightning/anything-to-string": "^1.0.0",
         "@ungap/promise-any": "^1.1.1",
+        "appdirsjs": "^1.2.7",
         "axios": "^1.7.2",
+        "chalk": "^5.4.1",
         "commander": "^12.1.0",
         "crypto-js": "^4.2.0",
         "diff": "^5.2.0",
-        "slightning-coco-widget": "1.0.1-alpha.11"
+        "slightning-coco-widget": "1.0.1-alpha.13",
+        "websocket": "^1.0.35"
     },
     "devDependencies": {
-        "@babel/core": "^7.26.0",
-        "@babel/preset-env": "^7.26.0",
+        "@babel/core": "^7.0.0",
+        "@babel/preset-env": "^7.0.0",
         "@types/diff": "^7.0.0",
-        "babel-loader": "^9.2.1",
+        "babel-loader": "^9.0.0",
+        "fork-ts-checker-webpack-plugin": "^9.0.2",
         "slightning-coco-widget--webpack": "1.0.2-alpha.4",
-        "terser-webpack-plugin": "^5.3.10",
-        "ts-loader": "^9.5.1",
-        "typedoc": "^0.26.6",
-        "typedoc-material-theme": "^1.1.0",
-        "webpack": "^5.93.0",
-        "webpack-cli": "^5.1.4"
+        "terser-webpack-plugin": "^5.0.0",
+        "ts-loader": "^9.0.0",
+        "typedoc": "^0.26.0",
+        "typedoc-material-theme": "^1.0.0",
+        "typedoc-plugin-mermaid": "^1.0.0",
+        "typescript": "^5.0.0",
+        "webpack": "^5.0.0",
+        "webpack-cli": "^5.0.0"
     },
     "engines": {
         "node": ">=14"

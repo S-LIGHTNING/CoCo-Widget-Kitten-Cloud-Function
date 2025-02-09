@@ -1,4 +1,5 @@
 const webpack = require("webpack")
+const path = require("path")
 const global = require("./global.webpack.config")
 const SCW = require("slightning-coco-widget--webpack")
 
@@ -6,12 +7,12 @@ const { project } = require("./project")
 
 SCW.addExternalImport({
     name: "axios",
-    source: "https://cdn.jsdelivr.net/npm/axios@^1.7.9/dist/axios.min.js"
+    source: "https://cdn.jsdelivr.net/npm/axios@1/dist/axios.min.js"
 })
 
 SCW.addExternalImport({
     name: "diff",
-    source: "https://cdn.jsdelivr.net/npm/diff@^5.2.0/dist/diff.min.js"
+    source: "https://cdn.jsdelivr.net/npm/diff@5/dist/diff.min.js"
 })
 
 SCW.addExternalImport({
@@ -24,9 +25,22 @@ SCW.addExternalImport({
  * @returns {webpack.Configuration}
  */
 module.exports = function (env, argv) {
+    let editionName, isExclusiveEdition = false
+    if (env.develop) {
+        editionName = "（开发调试版）"
+    } else if (
+        typeof env.user == "string" &&
+        typeof env.usingWork == "string" &&
+        typeof env.connectingWork == "string"
+    ) {
+        isExclusiveEdition = true
+        editionName = `（用户 ${env.user} 在 ${env.usingWork} 中连接 ${env.connectingWork} 的专用版）`
+    } else {
+        editionName = "（修改受限版）"
+    }
     const comments = [
         "==CoCoWidget==",
-        "@name " + project.name,
+        "@name " + project.name + editionName,
         "@author " + project.author,
         "@version " + project.version,
         "@license " + project.license,
@@ -42,10 +56,13 @@ module.exports = function (env, argv) {
     return {
         mode: globalConfig.mode,
         stats: globalConfig.stats,
-        entry: globalConfig.entry({
-            [project.name + "（编程猫 CoCo 控件版）" + (env.noModificationRestriction ? "" : "（修改受限版）") + ".js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
-        }),
-        output: globalConfig.output,
+        entry: {
+            [project.name + "（编程猫 CoCo 控件版）" + editionName + ".min.js"]: "./src/wrapper/kitten-cloud-function-codemao-coco-widget.ts"
+        },
+        output: {
+            ...globalConfig.output,
+            path: globalConfig.mode == "development" ? path.resolve(__dirname, "out", "dev") : path.resolve(__dirname, "out")
+        },
         optimization: globalConfig.optimization,
         module: {
             rules: [
@@ -70,7 +87,12 @@ module.exports = function (env, argv) {
                 entryOnly: true
             }),
             new webpack.DefinePlugin({
-                "KITTEN_CLOUD_FUNCTION_MODIFICATION_RESTRICTED": !env.noModificationRestriction
+                "KITTEN_CLOUD_FUNCTION_DEVELOP": JSON.stringify(env.develop ?? false),
+                "KITTEN_CLOUD_FUNCTION_ALLOW": isExclusiveEdition ? JSON.stringify({
+                    USER: env.user,
+                    USING_WORK: env.usingWork,
+                    CONNECTING_WORK: env.connectingWork,
+                }) : "(void 0)"
             })
         ]
     }

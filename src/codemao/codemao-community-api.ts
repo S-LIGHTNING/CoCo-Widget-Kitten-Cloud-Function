@@ -1,6 +1,8 @@
-import { AxiosRequestConfig, AxiosResponse } from "axios"
+import type { AxiosRequestConfig } from "axios"
+
 import { CodemaoUserSex } from "./user/codemao-user-sex"
-import { LOWER_CASE_LETTER, None, NUMBER_CHAR, randomString } from "../utils/other"
+import { LOWER_CASE_LETTER, NUMBER_CHAR, randomString } from "../utils/other"
+import { CodemaoAxios, CodemaoLocalStorage } from "./codemao-environment"
 
 export type UserProfileObject = {
     id: number
@@ -230,85 +232,26 @@ export type KittenNWorkPublicResourceObject = {
     blink_mode: string
 }
 
-async function codemaoAxios<T>(argument: AxiosRequestConfig): Promise<T> {
-    const axios = await import("axios")
-    try {
-        const response: AxiosResponse = await axios.default(argument)
-        let { data } = response
-        if (
-            data != None && typeof data == "object" &&
-            "status" in data && typeof data.status == "number" &&
-            "text" in data && typeof data.text == "string"
-        ) {
-            data = JSON.parse(data.text)
-        }
-        if (
-            data != None && typeof data == "object" &&
-            "code" in data && typeof data.code == "number" &&
-            "msg" in data && typeof data.msg == "string" &&
-            "data" in data
-        ) {
-            if (data.code != 200) {
-                throw new axios.AxiosError(
-                    data.msg,
-                    data.code.toString(),
-                    response.config,
-                    response.request,
-                    response
-                )
-            }
-            return data.data as T
-        }
-        return data as T
-    } catch (error) {
-        if (!axios.isAxiosError(error)) {
-            throw error
-        }
-        const { request, response } = error
-        try {
-            if (request == None) {
-                throw new Error("请求发送失败")
-            } else if (response == None) {
-                throw new Error("请求已发出，但未收到响应")
-            } else {
-                const { statusText, data } = response
-                if (!(
-                    typeof data == "object" &&
-                    ("error_message" in data || "error" in data || "msg" in data)
-                )) {
-                    throw new Error(statusText)
-                }
-                throw new Error(data.error_message ?? data.error ?? data.msg ?? statusText)
-            }
-        } catch (error) {
-            if (!(error instanceof Error)) {
-                throw error
-            }
-            throw new Error(`HTTP 请求 ${argument.method} ${argument.url} 失败：${error.message}`)
-        }
-    }
-}
-
 /**
  * https://api.codemao.cn/coconut/clouddb/currentTime
  */
 export async function getCurrentTime(): Promise<number> {
-    return codemaoAxios({
+    return CodemaoAxios({
         method: "GET",
         url: "https://api.codemao.cn/coconut/clouddb/currentTime"
     })
 }
 
-let timeDifference: number | None = None
+let timeDifference: number | null = null
 
 /**
  * 获取本地时间与 {@link getCurrentTime} 的差异
  */
 export async function getTimeDifference(): Promise<number> {
-    if (timeDifference == None) {
-        timeDifference = await getCurrentTime()
+    if (timeDifference == null) {
+        timeDifference = Math.round(Date.now() / 1000) - await getCurrentTime()
     }
-    return Math.round(Date.now() / 1000) - timeDifference
+    return timeDifference
 }
 
 /**
@@ -319,9 +262,9 @@ export async function getCalibratedTimestamp(): Promise<number> {
 }
 
 export function getSignUUID(): string {
-    let signUUID: string = localStorage.getItem("sign_uuid") ??
+    let signUUID: string = CodemaoLocalStorage.getItem("sign_uuid") ??
         randomString(8, NUMBER_CHAR.concat(LOWER_CASE_LETTER))
-    localStorage.setItem("sign_uuid", signUUID)
+    CodemaoLocalStorage.setItem("sign_uuid", signUUID)
     return signUUID
 }
 
@@ -344,13 +287,13 @@ export async function setXCreationToolsDeviceAuth(argument: AxiosRequestConfig):
 /**
  * https://api.codemao.cn/tiger/v3/web/accounts/profile
  *
- * @param authorization 用户凭证，留空则使用浏览器 Cookie
+ * @param authorization 用户凭证，留空则使用默认 Cookie
  *
  * @returns 用户信息
  */
-export async function getUserProfile(authorization?: string | None): Promise<UserProfileObject> {
-    const headers = authorization == null ? {} : { Cookie: `Authorization=${authorization}` }
-    return codemaoAxios({
+export async function getUserProfile(authorization?: string | null): Promise<UserProfileObject> {
+    const headers: { Cookie?: string } = authorization == null ? {} : { Cookie: `Authorization=${authorization}` }
+    return CodemaoAxios({
         method: "GET",
         url: "https://api.codemao.cn/tiger/v3/web/accounts/profile",
         withCredentials: true,
@@ -363,11 +306,11 @@ export async function getUserProfile(authorization?: string | None): Promise<Use
  *
  * 用户被封号时该 API 不可用。
  *
- * @param authorization 用户凭证，留空则使用浏览器 Cookie
+ * @param authorization 用户凭证，留空则使用默认 Cookie
  */
-export function getThisUserDetail(authorization?: string | None): Promise<ThisUserDetailObject> {
-    const headers = authorization == null ? {} : { Cookie: `Authorization=${authorization}` }
-    return codemaoAxios({
+export function getThisUserDetail(authorization?: string | null): Promise<ThisUserDetailObject> {
+    const headers: { Cookie?: string } = authorization == null ? {} : { Cookie: `Authorization=${authorization}` }
+    return CodemaoAxios({
         method: "GET",
         url: "https://api.codemao.cn/web/users/details",
         withCredentials: true,
@@ -379,7 +322,7 @@ export function getThisUserDetail(authorization?: string | None): Promise<ThisUs
  * https://api.codemao.cn/api/user/info/detail/${userID}
  */
 export async function getUserDetail(userID: number): Promise<UserDetailObject> {
-    return (await codemaoAxios<{ userInfo: UserDetailObject }>({
+    return (await CodemaoAxios<{ userInfo: UserDetailObject }>({
         method: "GET",
         url: `https://api.codemao.cn/api/user/info/detail/${userID}`,
         withCredentials: true
@@ -390,7 +333,7 @@ export async function getUserDetail(userID: number): Promise<UserDetailObject> {
  * https://api.codemao.cn/creation-tools/v1/user/center/honor?user_id=${userID}
  */
 export function getUserHonor(userID: number): Promise<UserHonorObject> {
-    return codemaoAxios({
+    return CodemaoAxios({
         method: "GET",
         url: `https://api.codemao.cn/creation-tools/v1/user/center/honor?user_id=${userID}`
     })
@@ -400,7 +343,7 @@ export function getUserHonor(userID: number): Promise<UserHonorObject> {
  * https://api.codemao.cn/creation-tools/v1/works/${workID}
  */
 export function getWorkInfo(workID: number): Promise<WorkInfoObject> {
-    return codemaoAxios({
+    return CodemaoAxios({
         method: "GET",
         url: `https://api.codemao.cn/creation-tools/v1/works/${workID}`
     })
@@ -410,7 +353,7 @@ export function getWorkInfo(workID: number): Promise<WorkInfoObject> {
  * https://api.codemao.cn/api/work/info/${workID}
  */
 export async function getWorkDetail(workID: number): Promise<WorkDetailObject> {
-    return (await codemaoAxios<{ workDetail: WorkDetailObject }>({
+    return (await CodemaoAxios<{ workDetail: WorkDetailObject }>({
         method: "GET",
         url: `https://api.codemao.cn/api/work/info/${workID}`
     })).workDetail
@@ -420,7 +363,7 @@ export async function getWorkDetail(workID: number): Promise<WorkDetailObject> {
  * https://api.codemao.cn/creation-tools/v1/works/${workID}/source/public
  */
 export function getNemoWorkPublicResource(workID: number): Promise<NemoWorkPublicResourceObject> {
-    return codemaoAxios({
+    return CodemaoAxios({
         method: "GET",
         url: `https://api.codemao.cn/creation-tools/v1/works/${workID}/source/public`
     })
@@ -430,7 +373,7 @@ export function getNemoWorkPublicResource(workID: number): Promise<NemoWorkPubli
  * https://api-creation.codemao.cn/kitten/r2/work/player/load/${workID}
  */
 export function getKittenWorkPublicResource(workID: number): Promise<KittenWorkPublicResourceObject> {
-    return codemaoAxios({
+    return CodemaoAxios({
         method: "GET",
         url: `https://api-creation.codemao.cn/kitten/r2/work/player/load/${workID}`
     })
@@ -440,7 +383,7 @@ export function getKittenWorkPublicResource(workID: number): Promise<KittenWorkP
  * https://api-creation.codemao.cn/neko/community/player/published-work-detail/${workID}
  */
 export async function getKittenNWorkPublicResource(workID: number): Promise<KittenNWorkPublicResourceObject> {
-    return codemaoAxios(await setXCreationToolsDeviceAuth({
+    return CodemaoAxios(await setXCreationToolsDeviceAuth({
         method: "GET",
         url: `https://api-creation.codemao.cn/neko/community/player/published-work-detail/${workID}`
     }))
