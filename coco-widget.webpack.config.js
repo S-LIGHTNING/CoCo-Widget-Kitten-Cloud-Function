@@ -53,7 +53,7 @@ module.exports = function (env, argv) {
             "This CoCo Widget uses SLIGHTNING CoCo Widget Framework."
         ]
     }, argv)
-    return {
+    const config = {
         mode: globalConfig.mode,
         stats: globalConfig.stats,
         entry: {
@@ -67,7 +67,23 @@ module.exports = function (env, argv) {
         module: {
             rules: [
                 ...SCW.loaders,
-                ...globalConfig.module.rules
+                {
+                    test: /kitten-cloud-function-codemao-coco-widget\.ts$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            presets: [
+                                ["@babel/preset-env", {
+                                    targets: {
+                                        ie: "11"
+                                    }
+                                }]
+                            ],
+                            plugins: []
+                        }
+                    }
+                }, ...globalConfig.module.rules
             ]
         },
         resolve: {
@@ -96,4 +112,5 @@ module.exports = function (env, argv) {
             })
         ]
     }
+    return config
 }

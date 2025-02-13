@@ -1165,6 +1165,62 @@ let hasOutputVersionInfo: boolean = false
 const userRecord: Record<string, CodemaoUser> = {}
 userRecord[0] = KittenCloudFunction.user
 
+async function checkModifiable(work: CodemaoWork): Promise<void> {
+    async function getString(index: number): Promise<string> {
+        return [
+            await "JUU1JUJEJTkzJUU1JTg5JThEJUU3JTg5JTg4JUU2JTlDJUFDJUU0JUI4JUJBJUU0JUJGJUFFJUU2JTk0JUI5JUU1JThGJTk3JUU5JTk5JTkwJUU3JTg5JTg4JUU3JTg5JTg4JUVGJUJDJThDJUU1JThGJUFBJUU4JTgzJUJEJUU0JUJGJUFFJUU2JTk0JUI5JUU4JTg3JUFBJUU1JUI3JUIxJUU0JUJEJTlDJUU1JTkzJTgxJUU3JTlBJTg0JUU0JUJBJTkxJUU2JTk1JUIwJUU2JThEJUFFJUVGJUJDJThDJUU0JUJEJTg2JUU2JTk4JUFGJUU2JUJBJTkwJUU3JUEwJTgxJUU0JUJBJTkxJUU1JThBJTlGJUU4JTgzJUJEJUU2JTk3JUEwJUU2JUIzJTk1JUU5JUFBJThDJUU4JUFGJTgxJUU0JUJEJUEwJUU3JTlBJTg0JUU4JUJBJUFCJUU0JUJCJUJE",
+            await "JUU1JUJEJTkzJUU1JTg5JThEJUU3JTg5JTg4JUU2JTlDJUFDJUU0JUI4JUJBJUU0JUJGJUFFJUU2JTk0JUI5JUU1JThGJTk3JUU5JTk5JTkwJUU3JTg5JTg4JUU3JTg5JTg4JUVGJUJDJThDJUU1JThGJUFBJUU4JTgzJUJEJUU0JUJGJUFFJUU2JTk0JUI5JUU4JTg3JUFBJUU1JUI3JUIxJUU0JUJEJTlDJUU1JTkzJTgxJUU3JTlBJTg0JUU0JUJBJTkxJUU2JTk1JUIwJUU2JThEJUFFJUVGJUJDJThDJUU4JTgwJThDJTIw",
+            await "JTIwJUU0JUI4JThEJUU2JTk4JUFGJUU0JUJEJUEwJUU3JTlBJTg0JUU0JUJEJTlDJUU1JTkzJTgx"
+        ][await index]!
+    }
+    if (await KITTEN_CLOUD_FUNCTION_DEVELOP) {
+        return
+    } else if (KITTEN_CLOUD_FUNCTION_ALLOW != None) {
+        let user: number, usingWork: number, connectingWork: number
+        let message: string = await ""
+        if (await (await (await location).protocol != await "file:")) {
+            if (await (await (await location).pathname == await "/editor/editor-player.html" || await (await (await location).pathname == await "/player"))) {
+                usingWork = await (await parseInt)(new URLSearchParams(await (await location).hash).get(await "#id") ?? await "")
+                user = await (await (await (await KittenCloudFunction).user).info).id
+            } else {
+                usingWork = await (await parseInt)(await (await (await location).pathname).split(await "/").pop() ?? "")
+                user = await (await (await (await new (await CodemaoWork)({ [await "id"]: await usingWork }).info).author).info).id
+            }
+            if (await !(await (await KITTEN_CLOUD_FUNCTION_ALLOW).USER).split(await ",").includes(await String(await user))) {
+                message += await "，仅用户 " + await (await KITTEN_CLOUD_FUNCTION_ALLOW).USER + await " 可用"
+            }
+            if (await (await (await location).hostname != await "cp.cocotais.cn")) {
+                if (await !(await (await (await KITTEN_CLOUD_FUNCTION_ALLOW).USING_WORK).split(await ",")).includes(await String(await usingWork))) {
+                    message += await "，仅在 CoCo 作品 " + await (await KITTEN_CLOUD_FUNCTION_ALLOW).USING_WORK + await " 可用"
+                }
+            }
+        }
+        connectingWork = await (await (await work).info).id
+        if (await !(await (await KITTEN_CLOUD_FUNCTION_ALLOW).CONNECTING_WORK).split(await ",").includes(await String(await connectingWork))) {
+            message += await "，仅可连接作品 " + await (await KITTEN_CLOUD_FUNCTION_ALLOW).CONNECTING_WORK + await ""
+        }
+        if (await message != await "") {
+            throw await new (await Error)(await `当前版本为专用版${await message}`)
+        }
+    } else {
+        let expectedWorkAuthorID: number | None = await None
+        if (await (await (await location).pathname == await "/editor/editor-player.html") || await (await (await location).pathname == await "/player")) {
+            expectedWorkAuthorID = await (await (await (await KittenCloudFunction).user).info).id
+        } else {
+            const thisWorkID: number = await (await parseInt)(await (await (await (await location).pathname).split(await "/")).pop() ?? await "")
+            if (await !(await (await Number).isNaN)(await thisWorkID)) {
+                expectedWorkAuthorID = await (await (await (await new (await CodemaoWork)({ [await "id"]: await thisWorkID }).info).author).info).id
+            }
+        }
+        if (await (await expectedWorkAuthorID == await None)) {
+            throw await new (await Error)(await (await decodeURIComponent)((await atob)(await (await getString)(await 0)!)))
+        }
+        if (await (await (await (await (await (await work).info).author).info).id != await expectedWorkAuthorID)) {
+            throw await new (await Error)(await `${await (await decodeURIComponent)(await (await atob)(await (await getString)(await 1)!))}${await (await (await work).info).name}${await (await decodeURIComponent)(await (await atob)(await (await getString)(await 2)!))}`)
+        }
+    }
+}
+
 class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWidget) {
 
     private connection: KittenCloudFunction | None
@@ -1278,55 +1334,6 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         this.connection.closed.connect(this.handleClose)
     }
 
-    private async checkModifiable(this: this): Promise<void> {
-        if (KITTEN_CLOUD_FUNCTION_DEVELOP) {
-            return
-        } else if (KITTEN_CLOUD_FUNCTION_ALLOW != None) {
-            let user: number, usingWork: number, connectingWork: number
-            let message: string = ""
-            if (location.protocol != "file:") {
-                if (location.pathname == "/editor/editor-player.html" || location.pathname == "/player") {
-                    usingWork = parseInt(new URLSearchParams(location.hash).get("#id") ?? "")
-                    user = await KittenCloudFunction.user.info.id
-                } else {
-                    usingWork = parseInt(location.pathname.split("/").pop() ?? "")
-                    user = await (await new CodemaoWork({ id: usingWork }).info.author).info.id
-                }
-                if (!KITTEN_CLOUD_FUNCTION_ALLOW.USER.split(",").includes(String(user))) {
-                    message += "，仅用户 " + KITTEN_CLOUD_FUNCTION_ALLOW.USER + " 可用"
-                }
-                if (location.hostname != "cp.cocotais.cn") {
-                    if (!KITTEN_CLOUD_FUNCTION_ALLOW.USING_WORK.split(",").includes(String(usingWork))) {
-                        message += "，仅在 CoCo 作品 " + KITTEN_CLOUD_FUNCTION_ALLOW.USING_WORK + " 可用"
-                    }
-                }
-            }
-            connectingWork = await this.getConnection().work.info.id
-            if (!KITTEN_CLOUD_FUNCTION_ALLOW.CONNECTING_WORK.split(",").includes(String(connectingWork))) {
-                message += "，仅可连接作品 " + KITTEN_CLOUD_FUNCTION_ALLOW.CONNECTING_WORK + ""
-            }
-            if (message != "") {
-                throw new Error(`当前版本为专用版${message}`)
-            }
-        } else {
-            let expectedWorkAuthorID: number | None = None
-            if (location.pathname == "/editor/editor-player.html" || location.pathname == "/player") {
-                expectedWorkAuthorID = await KittenCloudFunction.user.info.id
-            } else {
-                const thisWorkID: number = parseInt(location.pathname.split("/").pop() ?? "")
-                if (!Number.isNaN(thisWorkID)) {
-                    expectedWorkAuthorID = await (await new CodemaoWork({ id: thisWorkID }).info.author).info.id
-                }
-            }
-            if (expectedWorkAuthorID == None) {
-                throw new Error(`当前版本为修改受限版版，只能修改自己作品的云数据，但是源码云功能无法验证你的身份`)
-            }
-            if (await (await this.getConnection().work.info.author).info.id != expectedWorkAuthorID) {
-                throw new Error(`当前版本为修改受限版版，只能修改自己作品的云数据，而 ${await this.getConnection().work.info.name} 不是你的作品`)
-            }
-        }
-    }
-
     private handleClose: () => void = (): void => {
         this.connection = None
         this.emit("onClose")
@@ -1390,7 +1397,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     public async variableSet(this: this, name: string, value: KittenCloudVariableValue): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         ;(await this.getVariable(name)).set(value)
     }
 
@@ -1505,7 +1512,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         name: string,
         position: string
     ): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         switch (position) {
             case "head":
                 (await this.getList(name)).push(value)
@@ -1524,7 +1531,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         indexingMode: string,
         index: number
     ): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         const list: KittenCloudList = await this.getList(name)
         list.add(await this.listIndex(list, indexingMode, index), value)
     }
@@ -1532,7 +1539,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     public async listRemove(
         this: this, name: string, indexingMode: string, index: number
     ): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         const list: KittenCloudList = await this.getList(name)
         if (indexingMode == "backward" && index == 1) {
             list.pop()
@@ -1542,7 +1549,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     }
 
     public async listEmpty(this: this, name: string): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         ;(await this.getList(name)).empty()
     }
 
@@ -1553,7 +1560,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
         index: number,
         value: KittenCloudListItemValue
     ): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         const list: KittenCloudList = await this.getList(name)
         if (indexingMode == "backward" && index == 1) {
             list.replaceLast(value)
@@ -1565,7 +1572,7 @@ class KittenCloudFunctionWidget extends SLIGHTNINGWidgetSuper(types, InvisibleWi
     public async listCopy(
         this: this, list1: string | KittenCloudListItemValue[], list2name: string
     ): Promise<void> {
-        await this.checkModifiable()
+        await checkModifiable(this.getConnection().work)
         if (typeof list1 == "string") {
             list1 = (await this.getList(list1)).value
         }

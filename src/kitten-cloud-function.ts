@@ -35,7 +35,7 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
      * 仅在浏览器中可用。
      */
     public static get caught(): Signal<KittenCloudFunction> {
-        if (KittenCloudFunction.__caught == null) {
+        if (KittenCloudFunction.__caught == None) {
             KittenCloudFunction.__caught = new Signal()
             KittenCloudFunction.startCatch()
         }
@@ -47,17 +47,17 @@ export class KittenCloudFunction extends KittenCloudFunctionConfigLayer {
         new Function("newWebSocket", `
             newWebSocket.prototype = WebSocket.prototype;
             window.WebSocket = newWebSocket;
-        `)(function (url: string | URL): WebSocket {
+        `)(function WebSocket(url: string | URL): WebSocket {
             let socket: WebSocket = new originalWebSocket(url)
             if (typeof url == "string") {
                 url = new URL(url)
             }
             if (
                 !KittenCloudFunction.caught.isEmpty() &&
-                url.hostname == ["socketcv", "codemao", "cn"].join(".") &&
+                url.hostname == "socketcv.codemao.cn" &&
                 url.pathname == "/cloudstorage/"
             ) {
-                let workID = parseInt(url.searchParams.get("session_id") ?? "0")
+                let workID: number = parseInt(url.searchParams.get("session_id") ?? "0")
                 let instance: KittenCloudFunction | undefined = KittenCloudFunction.__caughtInstance[workID]
                 if (instance == null) {
                     instance = new KittenCloudFunction(socket)
